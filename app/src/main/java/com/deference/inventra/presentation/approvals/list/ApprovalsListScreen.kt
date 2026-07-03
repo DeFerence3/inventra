@@ -1,0 +1,160 @@
+package com.deference.inventra.presentation.approvals.list
+
+import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import com.deference.inventra.presentation.approvals.list.components.ApprovalCard
+import com.deference.inventra.presentation.core.components.ErrorDialog
+import com.deference.inventra.presentation.core.components.InputTextField
+import com.deference.inventra.presentation.core.components.InputTextFieldType
+import com.deference.inventra.presentation.core.utils.ObserveEvent
+import kotlinx.coroutines.flow.Flow
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ApprovalsListScreen(
+    onBack: () -> Unit,
+    onApprovalClick: (uuid: String,transUuId: String) -> Unit,
+    state: ApprovalsListState,
+    eventFlow: Flow<ApprovalsListEvent>,
+    onAction: (ApprovalsListActions) -> Unit,
+) {
+    val context = LocalContext.current
+    var showFilterMenu by remember { mutableStateOf(false) }
+
+    eventFlow.ObserveEvent { event ->
+        when (event) {
+            is ApprovalsListEvent.Error -> {
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+            }
+
+            ApprovalsListEvent.Success -> {
+                Toast.makeText(context, "Action Performed Successfully", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    if (state.error != null) {
+        ErrorDialog(error = state.error, onDismiss = { onAction(ApprovalsListActions.Refresh) })
+    }
+
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .navigationBarsPadding(),
+        topBar = {
+            TopAppBar(
+                modifier = Modifier,
+                title = { Text("Approvals") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    Box {
+                        IconButton(onClick = { showFilterMenu = true }) {
+                            Icon(Icons.Default.FilterList, contentDescription = "Filter")
+                        }
+                        DropdownMenu(
+                            expanded = showFilterMenu,
+                            onDismissRequest = { showFilterMenu = false }
+                        ) {
+                            listOf("Pending", "Approved", "Rejected").forEach { status ->
+                                DropdownMenuItem(
+                                    text = { Text(status) },
+                                    onClick = {
+                                        onAction(ApprovalsListActions.OnStatusFilterChange(status))
+                                        showFilterMenu = false
+                                    }
+                                )
+                            }
+                            HorizontalDivider()
+                            listOf("All","PurchaseRequisition", "PurchaseOrderItem", "StockRequest").forEach { transType ->
+                                DropdownMenuItem(
+                                    text = { Text(transType) },
+                                    onClick = {
+                                        onAction(ApprovalsListActions.OnTransTypeFilterChange(transType))
+                                        showFilterMenu = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+        ) {
+            InputTextField(
+                text = state.searchQuery,
+                onValueChange = { onAction(ApprovalsListActions.OnSearchQueryChanged(it)) },
+                label = "Search",
+                leadingIcon = Icons.Default.Search,
+                type = InputTextFieldType.WithIcon
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+            ) {
+                if (state.isLoading && state.approvals.isEmpty()) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                } else if (state.approvals.isEmpty()) {
+                    Text(
+                        text = "No approvals found",
+                        modifier = Modifier.align(Alignment.Center),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        items(state.approvals) { item ->
+                            ApprovalCard(
+                                item = item,
+                                onClick = { onApprovalClick(item.uuid,item.transUuid) },)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,165 @@
+package com.deference.inventra.presentation.supplier
+
+import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import com.deference.inventra.R
+import com.deference.inventra.domain.model.master.Supplier
+import com.deference.inventra.presentation.core.components.InputTextField
+import com.deference.inventra.presentation.core.components.InputTextFieldType
+import com.deference.inventra.presentation.core.utils.ObserveEvent
+import kotlinx.coroutines.flow.Flow
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SupplierListScreen(
+    onSupplierSelected: (Supplier) -> Unit,
+    onBack: () -> Unit,
+    state: SupplierState,
+    eventFlow: Flow<SupplierEvent>,
+    onAction: (SupplierActions) -> Unit
+) {
+    val context = LocalContext.current
+
+    eventFlow.ObserveEvent { event ->
+        when (event) {
+            is SupplierEvent.Error -> {
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    val listState = rememberLazyListState()
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
+            lastVisibleItem != null && lastVisibleItem.index >= state.suppliers.size - 1
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore.value) {
+        if (shouldLoadMore.value && !state.isLoading && !state.isLastPage) {
+            onAction(SupplierActions.LoadNextPage)
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Select Supplier") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(bottom = 16.dp)
+        ) {
+            InputTextField(
+                text = state.searchQuery,
+                onValueChange = { onAction(SupplierActions.OnSearchQueryChanged(it)) },
+                label = "Search",
+                leadingIcon = Icons.Default.Search,
+                type = InputTextFieldType.WithIcon
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(state.suppliers) { supplier ->
+                    SupplierItem(supplier = supplier) {
+                        onSupplierSelected(supplier)
+                    }
+                }
+                if (state.isLoading) {
+                    item {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .wrapContentWidth(Alignment.CenterHorizontally)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SupplierItem(supplier: Supplier, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RectangleShape
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Image(
+                painter = painterResource(R.drawable.img_placeholder),
+                contentDescription = "Supplier Icon",
+                modifier = Modifier.size(50.dp).padding(8.dp)
+            )
+            Column(
+                modifier = Modifier
+                    .padding(start = 8.dp)
+            ) {
+                Text(text = supplier.name, style = MaterialTheme.typography.titleMedium)
+                supplier.code?.let {
+                    Text(text = it, style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        }
+    }
+}

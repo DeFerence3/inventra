@@ -1,0 +1,14 @@
+package com.deference.inventra.domain.repository
+
+import com.deference.inventra.domain.model.Paginated
+import com.deference.inventra.domain.model.master.Supplier
+import kotlinx.coroutines.Deferred
+import retrofit2.Response
+
+interface MasterRepo {
+    fun searchSupplier(
+        name: String?,
+        page: Int,
+        pageSize: Int
+    ): Deferred<Response<Paginated<Supplier>>>
+}
