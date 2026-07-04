@@ -61,7 +61,7 @@ data class GrnRequest(
     @SerialName("isDraft")
     val isDraft: Boolean = false,
     @SerialName("status")
-    val status: Int = 0,
+    val status: Int = 1,
     @SerialName("items")
     val items: List<Item>
 )

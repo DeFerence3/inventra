@@ -49,6 +49,29 @@ class OrderItemListVM @AssistedInject constructor(
         when (action) {
             is OrderItemListActions.SaveGrn -> saveGrn()
             OrderItemListActions.DismissError -> _state.update { it.copy(error = null) }
+            is OrderItemListActions.UpdateItemAmounts -> updateItemAmounts(action)
+        }
+    }
+
+    private fun updateItemAmounts(action: OrderItemListActions.UpdateItemAmounts) {
+        val qty = action.qty.coerceAtLeast(0.0)
+        val rate = action.rate.coerceAtLeast(0.0)
+        val netAmount = qty * rate
+
+        _state.update { currentState ->
+            currentState.copy(
+                items = currentState.items.map { item ->
+                    if (item.purchaseOrderItemUuid != action.purchaseOrderItemUuid) return@map item
+                    val taxAmount = netAmount * item.taxPercentage / 100.0
+                    item.copy(
+                        requiredQty = qty,
+                        pricePerUnit = rate,
+                        netAmount = netAmount,
+                        taxAmount = taxAmount,
+                        grossAmount = netAmount + taxAmount,
+                    )
+                }
+            )
         }
     }
 
@@ -110,3 +133,4 @@ class OrderItemListVM @AssistedInject constructor(
         }
     }
 }
+

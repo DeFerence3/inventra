@@ -1,6 +1,5 @@
 package com.deference.inventra.presentation.orderItem
 
-import android.widget.Toast
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,16 +24,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.deference.inventra.core.utils.asAmount
 import com.deference.inventra.domain.model.purchase.OrderItem
 import com.deference.inventra.presentation.core.components.AppButton
 import com.deference.inventra.presentation.core.components.ErrorDialog
 import com.deference.inventra.presentation.core.utils.ObserveEvent
+import com.deference.inventra.presentation.orderItem.components.EditOrderItemDialog
 import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,37 +49,43 @@ fun OrderItemListScreen(
     eventFlow: Flow<OrderItemListEvent>,
     onAction: (OrderItemListActions) -> Unit,
 ) {
-    val context = LocalContext.current
+    var selectedItem by remember { mutableStateOf<OrderItem?>(null) }
 
     eventFlow.ObserveEvent { event ->
         when (event) {
-            is OrderItemListEvent.Error -> {
-                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-            }
-
-            OrderItemListEvent.Success -> {
-                Toast.makeText(context, "GRN Saved Successfully", Toast.LENGTH_SHORT).show()
-                onSave()
-            }
+            is OrderItemListEvent.Error -> Unit
+            OrderItemListEvent.Success -> onSave()
         }
     }
 
-    if (state.error != null) {
+    state.error?.let { error ->
         ErrorDialog(
-            onDismiss = {
-                onAction(OrderItemListActions.DismissError)
-            },
-            error = state.error
+            error = error,
+            onDismiss = { onAction(OrderItemListActions.DismissError) }
+        )
+    }
+
+    selectedItem?.let { item ->
+        EditOrderItemDialog(
+            item = item,
+            onDismiss = { selectedItem = null },
+            onSave = { qty, rate ->
+                onAction(
+                    OrderItemListActions.UpdateItemAmounts(
+                        purchaseOrderItemUuid = item.purchaseOrderItemUuid,
+                        qty = qty,
+                        rate = rate,
+                    )
+                )
+                selectedItem = null
+            }
         )
     }
 
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .navigationBarsPadding(),
         topBar = {
             TopAppBar(
-                title = { Text("Items from POs") },
+                title = { Text("Order Items") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -87,7 +95,7 @@ fun OrderItemListScreen(
         },
         bottomBar = {
             AppButton(
-                text = "Save",
+                text = "Save GRN",
                 enabled = (state.isLoading || state.items.isEmpty() || state.error != null).not(),
                 onClick = { onAction(OrderItemListActions.SaveGrn) }
             )
@@ -113,7 +121,7 @@ fun OrderItemListScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(state.items) { item ->
-                        OrderItemCard(item = item)
+                        OrderItemCard(item = item, onClick = { selectedItem = item })
                     }
                 }
             }
@@ -122,11 +130,15 @@ fun OrderItemListScreen(
 }
 
 @Composable
-fun OrderItemCard(item: OrderItem) {
+fun OrderItemCard(
+    item: OrderItem,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RectangleShape
+        shape = RectangleShape,
+        onClick = onClick
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -173,7 +185,7 @@ fun OrderItemCard(item: OrderItem) {
                 VerticalDivider()
                 Column {
                     Text(
-                        text = "Vat",
+                        text = "VAT(${item.taxPercentage}%)",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
