@@ -47,7 +47,7 @@ class OrderItemListVM @AssistedInject constructor(
 
     fun onAction(action: OrderItemListActions) {
         when (action) {
-            is OrderItemListActions.SaveGrn -> saveGrn()
+            is OrderItemListActions.SaveGrn -> saveGrn(action.deliveryChallanNo, action.deliveryChallanDate)
             OrderItemListActions.DismissError -> _state.update { it.copy(error = null) }
             is OrderItemListActions.UpdateItemAmounts -> updateItemAmounts(action)
         }
@@ -75,7 +75,7 @@ class OrderItemListVM @AssistedInject constructor(
         }
     }
 
-    private fun saveGrn() {
+    private fun saveGrn(deliveryChallanNo: String, deliveryChallanDate: LocalDateTime) {
         val items = _state.value.items.map{ it.toItem() }
 
         val grnRequest = GrnRequest(
@@ -92,7 +92,9 @@ class OrderItemListVM @AssistedInject constructor(
             transNo = "TFG",
             vendorName = supplierName,
             currencyCode = "AED",
-            baseCurrencyCode = "AED"
+            baseCurrencyCode = "AED",
+            deliveryChallanNo = deliveryChallanNo,
+            deliveryChallanDate = deliveryChallanDate
         )
 
         viewModelScope.launch {

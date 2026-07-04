@@ -1,6 +1,7 @@
 package com.deference.inventra.domain.model.grn
 
 
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -25,9 +26,9 @@ data class GrnRequest(
     @SerialName("poIDs")
     val poIDs: String? = null,
     @SerialName("deliveryChallanNo")
-    val deliveryChallanNo: String? = null,
+    val deliveryChallanNo: String,
     @SerialName("deliveryChallanDate")
-    val deliveryChallanDate: String? = null,
+    val deliveryChallanDate: LocalDateTime,
     @SerialName("invoiceNo")
     val invoiceNo: String? = null,
     @SerialName("invoiceDate")

@@ -1,5 +1,6 @@
 package com.deference.inventra.presentation.orderItem
 
+import android.widget.Toast
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,12 +32,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.deference.inventra.core.utils.asAmount
 import com.deference.inventra.domain.model.purchase.OrderItem
 import com.deference.inventra.presentation.core.components.AppButton
 import com.deference.inventra.presentation.core.components.ErrorDialog
 import com.deference.inventra.presentation.core.utils.ObserveEvent
+import com.deference.inventra.presentation.orderItem.components.DeliveryChallanDialog
 import com.deference.inventra.presentation.orderItem.components.EditOrderItemDialog
 import kotlinx.coroutines.flow.Flow
 
@@ -50,11 +53,18 @@ fun OrderItemListScreen(
     onAction: (OrderItemListActions) -> Unit,
 ) {
     var selectedItem by remember { mutableStateOf<OrderItem?>(null) }
+    var showDeliveryChallanDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     eventFlow.ObserveEvent { event ->
         when (event) {
-            is OrderItemListEvent.Error -> Unit
-            OrderItemListEvent.Success -> onSave()
+            is OrderItemListEvent.Error -> {
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+            }
+            OrderItemListEvent.Success -> {
+                Toast.makeText(context, "GRN Saved Successfully", Toast.LENGTH_SHORT).show()
+                onSave()
+            }
         }
     }
 
@@ -82,6 +92,21 @@ fun OrderItemListScreen(
         )
     }
 
+    if (showDeliveryChallanDialog) {
+        DeliveryChallanDialog(
+            onDismiss = { showDeliveryChallanDialog = false },
+            onConfirm = { challanNo, challanDate ->
+                onAction(
+                    OrderItemListActions.SaveGrn(
+                        deliveryChallanNo = challanNo,
+                        deliveryChallanDate = challanDate
+                    )
+                )
+                showDeliveryChallanDialog = false
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -97,7 +122,7 @@ fun OrderItemListScreen(
             AppButton(
                 text = "Save GRN",
                 enabled = (state.isLoading || state.items.isEmpty() || state.error != null).not(),
-                onClick = { onAction(OrderItemListActions.SaveGrn) }
+                onClick = { showDeliveryChallanDialog = true }
             )
         }
     ) { paddingValues ->
