@@ -8,7 +8,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,8 +40,6 @@ fun Home(
     )
 
     val blue = Color(0xFF1976D2)
-    val background = Color(0xFFF5F5F5)
-    val border = Color(0xFFE0E0E0)
 
     Scaffold(
         modifier = Modifier
@@ -71,17 +69,14 @@ fun Home(
                     )
                 } },
                 navigationIcon = {
-                    IconButton(
-                        onClick = { }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Menu,
-                            contentDescription = null,
-                            tint = blue,
-                            modifier = Modifier.size(30.dp)
-                        )
-                    }
-
+                    Icon(
+                        imageVector = Icons.Default.Home,
+                        contentDescription = null,
+                        tint = blue,
+                        modifier = Modifier
+                            .padding(6.dp)
+                            .size(30.dp)
+                    )
                 }
             )
         }
@@ -97,8 +92,7 @@ fun Home(
         ) {
             items(menuItems) { item ->
                 MenuCard(
-                    item = item,
-                    border = border,
+                    item = item
                 ) {
                     item.route?.let {
                         onMenuClick(it)

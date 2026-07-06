@@ -1,6 +1,5 @@
 package com.deference.inventra.presentation.home
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +27,6 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun MenuCard(
     item: MenuItem,
-    border: Color,
     onClick: () -> Unit
 ) {
 
@@ -38,10 +36,6 @@ fun MenuCard(
             .aspectRatio(1.15f)
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(
-            width = 0.6.dp,
-            color = border
-        ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 3.dp
         )
