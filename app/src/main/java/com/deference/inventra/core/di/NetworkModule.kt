@@ -5,6 +5,7 @@ import android.util.Log
 import com.deference.inventra.core.Constant.BASE_URL
 import com.deference.inventra.core.utils.network.AuthInterceptor
 import com.deference.inventra.data.remote.ApiService
+import com.deference.inventra.data.remote.ItemApiService
 import com.deference.inventra.data.remote.PurchaseApiService
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -68,6 +69,10 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideApiService(retrofit: Retrofit): ApiService = retrofit.create(ApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideItemApiService(retrofit: Retrofit): ItemApiService = retrofit.create(ItemApiService::class.java)
 
     @Provides
     @Singleton

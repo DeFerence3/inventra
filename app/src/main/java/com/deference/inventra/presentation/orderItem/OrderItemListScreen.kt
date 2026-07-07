@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,6 +41,7 @@ import com.deference.inventra.domain.model.purchase.OrderItem
 import com.deference.inventra.presentation.core.components.AppButton
 import com.deference.inventra.presentation.core.components.ErrorDialog
 import com.deference.inventra.presentation.core.utils.ObserveEvent
+import com.deference.inventra.presentation.orderItem.components.AddManualItemDialog
 import com.deference.inventra.presentation.orderItem.components.DeliveryChallanDialog
 import com.deference.inventra.presentation.orderItem.components.EditOrderItemDialog
 import kotlinx.coroutines.flow.Flow
@@ -54,6 +57,7 @@ fun OrderItemListScreen(
 ) {
     var selectedItem by remember { mutableStateOf<OrderItem?>(null) }
     var showDeliveryChallanDialog by remember { mutableStateOf(false) }
+    var showAddDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     eventFlow.ObserveEvent { event ->
@@ -107,13 +111,34 @@ fun OrderItemListScreen(
         )
     }
 
+    if (showAddDialog) {
+        AddManualItemDialog(
+            searchResults = state.searchResults,
+            isSearching = state.isSearching,
+            onSearch = { query -> onAction(OrderItemListActions.SearchItems(query)) },
+            onDismiss = { showAddDialog = false },
+            onAdd = { item, qty, rate ->
+                onAction(OrderItemListActions.AddManualItem(item.toItem(), qty, rate))
+                showAddDialog = false
+            }
+        )
+    }
+
     Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .navigationBarsPadding(),
         topBar = {
             TopAppBar(
                 title = { Text("Order Items") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { showAddDialog = true }) {
+                        Icon(Icons.Default.Add, contentDescription = "Add Item")
                     }
                 }
             )

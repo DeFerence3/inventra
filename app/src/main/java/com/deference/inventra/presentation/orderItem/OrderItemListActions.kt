@@ -13,5 +13,11 @@ sealed interface OrderItemListActions {
         val qty: Double,
         val rate: Double,
     ) : OrderItemListActions
+    data class SearchItems(val query: String) : OrderItemListActions
+    data class AddManualItem(
+        val item: com.deference.inventra.domain.model.purchase.Item,
+        val qty: Double,
+        val rate: Double
+    ) : OrderItemListActions
 }
 

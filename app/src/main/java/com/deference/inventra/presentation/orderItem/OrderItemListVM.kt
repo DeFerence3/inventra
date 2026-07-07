@@ -15,6 +15,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import com.deference.inventra.domain.model.purchase.OrderItem
+import com.deference.inventra.data.remote.ItemApiService
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -27,7 +29,8 @@ class OrderItemListVM @AssistedInject constructor(
     @Assisted val supplierName: String,
     @Assisted val poUUIDs: List<String>,
     private val getOrderItemsByPurchaseOrdersUseCase: GetOrderItemsByPurchaseOrdersUseCase,
-    private val saveGrnUseCase: SaveGrnUseCase
+    private val saveGrnUseCase: SaveGrnUseCase,
+    private val itemApiService: ItemApiService
 ) : ViewModel() {
 
     @AssistedFactory
@@ -50,6 +53,74 @@ class OrderItemListVM @AssistedInject constructor(
             is OrderItemListActions.SaveGrn -> saveGrn(action.deliveryChallanNo, action.deliveryChallanDate)
             OrderItemListActions.DismissError -> _state.update { it.copy(error = null) }
             is OrderItemListActions.UpdateItemAmounts -> updateItemAmounts(action)
+            is OrderItemListActions.SearchItems -> searchItems(action.query)
+            is OrderItemListActions.AddManualItem -> addManualItem(action.item, action.qty, action.rate)
+        }
+    }
+
+    private fun searchItems(query: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(isSearching = true) }
+            try {
+                val response = itemApiService.getItemList(query, 1, 50).await()
+                if (response.isSuccessful) {
+                    _state.update { it.copy(searchResults = response.body()?.items ?: emptyList(), isSearching = false) }
+                } else {
+                    _state.update { it.copy(isSearching = false, error = response.message()) }
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(isSearching = false, error = e.localizedMessage) }
+            }
+        }
+    }
+
+    private fun addManualItem(item: com.deference.inventra.domain.model.purchase.Item, qty: Double, rate: Double) {
+        val net = qty * rate
+        val tax = net * 5.0 / 100.0
+        val newItem = OrderItem(
+            purchaseOrderId = 0,
+            purchaseOrderItemId = 0,
+            purchaseOrderItemUuid = java.util.UUID.randomUUID().toString(),
+            itemId = 0,
+            itemName = item.itemName,
+            itemCode = item.itemCode,
+            itemGroupId = 0,
+            itemGroupName = "",
+            majorGroupId = 0,
+            majorGroupName = "",
+            overGroupId = 0,
+            overGroupName = "",
+            unitId = 0,
+            unitName = item.unitName,
+            baseUnitId = 0,
+            baseUnitName = item.baseUnitName,
+            purchaseItemId = 0,
+            purchaseItemName = item.itemName,
+            requiredQty = qty,
+            pricePerUnit = rate,
+            pricePerBaseUnit = rate,
+            receivedQty = qty,
+            remarks = "",
+            locationId = 1,
+            locationName = item.locationName.ifEmpty { "Default Location" },
+            discountPercentage = 0.0,
+            discountAmount = 0.0,
+            taxPercentage = 5.0,
+            taxAmount = tax,
+            netAmount = net,
+            grossAmount = net + tax,
+            expiryDays = null,
+            storeUnitId = 0,
+            storeUnitName = item.baseUnitName,
+            isHACCPRequired = false,
+            isStockItem = true,
+            conversionFactorBUToSU = 1.0
+        )
+        _state.update { currentState ->
+            currentState.copy(
+                items = currentState.items + newItem,
+                searchResults = emptyList() // clear search after adding
+            )
         }
     }
 
