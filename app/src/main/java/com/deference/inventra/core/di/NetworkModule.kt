@@ -7,6 +7,7 @@ import com.deference.inventra.core.utils.network.AuthInterceptor
 import com.deference.inventra.data.remote.ApiService
 import com.deference.inventra.data.remote.ItemApiService
 import com.deference.inventra.data.remote.PurchaseApiService
+import com.deference.inventra.data.remote.StockApiService
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
@@ -77,5 +78,13 @@ object NetworkModule {
     @Provides
     @Singleton
     fun providePurchaseApiService(retrofit: Retrofit): PurchaseApiService = retrofit.create(PurchaseApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideStockApiService(retrofit: Retrofit): com.deference.inventra.data.remote.StockApiService = retrofit.create(com.deference.inventra.data.remote.StockApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideConfigApiService(retrofit: Retrofit): com.deference.inventra.data.remote.ConfigApiService = retrofit.create(com.deference.inventra.data.remote.ConfigApiService::class.java)
 
 }

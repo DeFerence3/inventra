@@ -15,6 +15,12 @@ data class SearchItem(
     val baseUnit: String,
     @SerialName("storeUnit")
     val storeUnit: String,
+    @SerialName("itemGroup")
+    val itemGroup: String,
+    @SerialName("overGroup")
+    val overGroup: String,
+    @SerialName("majorGroup")
+    val majorGroup: String,
     @SerialName("itemCode")
     val itemCode: String?
 ) {
@@ -30,6 +36,9 @@ data class SearchItem(
         grossAmount = 0.0,
         vendorName = "",
         locationName = "",
-        stockOnHand = 0
+        stockOnHand = 0,
+        itemGroupName = itemGroup,
+        overGroupName = overGroup,
+        majorGroupName = majorGroup,
     )
 }

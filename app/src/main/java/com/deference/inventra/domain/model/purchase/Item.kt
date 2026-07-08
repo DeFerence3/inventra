@@ -26,6 +26,12 @@ data class Item(
     val vendorName: String,
     @SerialName("locationName")
     val locationName: String,
+    @SerialName("itemGroupName")
+    val itemGroupName: String?,
+    @SerialName("overGroupName")
+    val overGroupName: String?,
+    @SerialName("majorGroupName")
+    val majorGroupName: String?,
     @SerialName("stockOnHand")
     val stockOnHand: Int
 )

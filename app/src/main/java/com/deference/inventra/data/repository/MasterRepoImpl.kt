@@ -2,6 +2,7 @@ package com.deference.inventra.data.repository
 
 import com.deference.inventra.data.remote.ApiService
 import com.deference.inventra.domain.model.Paginated
+import com.deference.inventra.domain.model.master.Location
 import com.deference.inventra.domain.model.master.Supplier
 import com.deference.inventra.domain.repository.MasterRepo
 import kotlinx.coroutines.Deferred
@@ -17,5 +18,13 @@ class MasterRepoImpl @Inject constructor(
         pageSize: Int
     ): Deferred<Response<Paginated<Supplier>>> {
         return apiService.searchSupplier(name, page, pageSize)
+    }
+
+    override fun getLocations(
+        name: String?,
+        page: Int,
+        pageSize: Int
+    ): Deferred<Response<List<Location>>> {
+        return apiService.locations(name, page, pageSize)
     }
 }

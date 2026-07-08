@@ -154,6 +154,16 @@ fun NavigationRoot(
                                 onAction = vm::onAction
                             )
                         }
+                        InventraRoutes.SpotCheck -> NavEntry(key){
+                            val vm = hiltViewModel<com.deference.inventra.presentation.spotcheck.SpotCheckVM>()
+                            val state by vm.state.collectAsState()
+                            com.deference.inventra.presentation.spotcheck.SpotCheckScreen(
+                                onBack = { backStack.removeLastOrNull() },
+                                state = state,
+                                eventFlow = vm.eventFlow,
+                                onAction = vm::onAction
+                            )
+                        }
                     }
                 }
                 else -> error("No route for $key")

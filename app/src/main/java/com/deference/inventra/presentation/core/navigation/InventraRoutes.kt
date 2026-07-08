@@ -18,4 +18,6 @@ sealed interface InventraRoutes: NavKey {
     data object ApprovalList : InventraRoutes
     @Serializable
     data class Approve(val approvalId: String,val transUuId: List<String>): InventraRoutes
+    @Serializable
+    data object SpotCheck : InventraRoutes
 }

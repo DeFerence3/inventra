@@ -4,6 +4,7 @@ import com.deference.inventra.domain.model.Paginated
 import com.deference.inventra.domain.model.auth.LoginRequest
 import com.deference.inventra.domain.model.auth.LoginResponse
 import com.deference.inventra.domain.model.master.Supplier
+import com.deference.inventra.domain.model.master.Location
 import kotlinx.coroutines.Deferred
 import retrofit2.Response
 import retrofit2.http.Body
@@ -23,4 +24,11 @@ interface ApiService {
         @Query("page") pageNumber: Int,
         @Query("pageSize") pageSize: Int
     ): Deferred<Response<Paginated<Supplier>>>
+
+    @GET("api/master/Location")
+    fun locations(
+        @Query("name") name: String?,
+        @Query("page") pageNumber: Int,
+        @Query("pageSize") pageSize: Int
+    ): Deferred<Response<List<Location>>>
 }

@@ -36,7 +36,7 @@ fun Home(
     val menuItems = listOf(
         MenuItem("GRN", painterResource(R.drawable.ic_grn), InventraRoutes.SupplierList),
         MenuItem("Approvals", painterResource(R.drawable.ic_approval), InventraRoutes.ApprovalList),
-        MenuItem("Stock Check", painterResource(R.drawable.ic_stock)),
+        MenuItem("Spot Check", painterResource(R.drawable.ic_stock), InventraRoutes.SpotCheck),
         MenuItem("Settings", painterResource(R.drawable.ic_settings)),
     )
 
