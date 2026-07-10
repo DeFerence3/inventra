@@ -1,6 +1,7 @@
 package com.deference.inventra.presentation.spotcheck
 
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,8 +16,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -24,10 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,9 +30,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,9 +44,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.deference.inventra.core.utils.formatToString
+import com.deference.inventra.domain.model.item.SearchItem
+import com.deference.inventra.domain.model.master.Location
 import com.deference.inventra.presentation.core.components.AppButton
 import com.deference.inventra.presentation.core.components.InputTextField
 import com.deference.inventra.presentation.core.components.InputTextFieldType
+import com.deference.inventra.presentation.core.components.selectors.SelectionContract
+import com.deference.inventra.presentation.core.components.selectors.components.SelectionConstant
 import com.deference.inventra.presentation.core.utils.ObserveEvent
 import kotlinx.coroutines.flow.Flow
 
@@ -67,6 +69,7 @@ fun SpotCheckScreen(
             is SpotCheckEvent.Error -> {
                 Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
             }
+
             SpotCheckEvent.Success -> {
                 Toast.makeText(context, "Spot check submitted successfully", Toast.LENGTH_SHORT).show()
                 onBack()
@@ -74,108 +77,36 @@ fun SpotCheckScreen(
         }
     }
 
-    // Location Selector Dialog
-    state.showLocationSelectorForIndex?.let { index ->
-        AlertDialog(
-            onDismissRequest = { onAction(SpotCheckActions.CloseLocationSelector) },
-            title = { Text("Select Location") },
-            text = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.height(400.dp)
-                ) {
-                    InputTextField(
-                        text = state.locationSearchQuery,
-                        onValueChange = { onAction(SpotCheckActions.OnLocationSearchQueryChanged(it)) },
-                        label = "Search Location",
-                        leadingIcon = Icons.Default.Search,
-                        type = InputTextFieldType.WithIcon
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    if (state.isSearchingLocations) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-                    } else {
-                        LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            items(state.locations) { location ->
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { onAction(SpotCheckActions.SelectLocation(index, location.name)) },
-                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                                ) {
-                                    Text(
-                                        text = location.name,
-                                        modifier = Modifier.padding(16.dp),
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { onAction(SpotCheckActions.CloseLocationSelector) }) {
-                    Text("Close")
-                }
-            }
-        )
-    }
+    var locationSelectionIndex by remember { mutableStateOf<Int?>(null) }
+    var itemSelectionIndex by remember { mutableStateOf<Int?>(null) }
 
-    // Item Selector Dialog
-    state.showItemSelectorForIndex?.let { index ->
-        AlertDialog(
-            onDismissRequest = { onAction(SpotCheckActions.CloseItemSelector) },
-            title = { Text("Select Item") },
-            text = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.height(400.dp)
-                ) {
-                    InputTextField(
-                        text = state.itemSearchQuery,
-                        onValueChange = { onAction(SpotCheckActions.OnItemSearchQueryChanged(it)) },
-                        label = "Search Item",
-                        leadingIcon = Icons.Default.Search,
-                        type = InputTextFieldType.WithIcon
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    if (state.isSearchingItems) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-                    } else {
-                        LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            items(state.searchedItems) { item ->
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { onAction(SpotCheckActions.SelectItem(index, item)) },
-                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                                ) {
-                                    Column(modifier = Modifier.padding(12.dp)) {
-                                        Text(text = item.itemName, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
-                                        item.itemCode?.let {
-                                            Text(text = "Code: $it", style = MaterialTheme.typography.bodyMedium)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { onAction(SpotCheckActions.CloseItemSelector) }) {
-                    Text("Close")
-                }
+    val locationLauncher = rememberLauncherForActivityResult(
+        contract = SelectionContract<Location>(
+            selectionConst = SelectionConstant.LOCATION,
+            head = "Select Location"
+        ),
+        onResult = { result ->
+            val index = locationSelectionIndex
+            if (result != null && index != null) {
+                onAction(SpotCheckActions.SelectLocation(index, result.name))
             }
-        )
-    }
+            locationSelectionIndex = null
+        }
+    )
+
+    val itemLauncher = rememberLauncherForActivityResult(
+        contract = SelectionContract<SearchItem>(
+            selectionConst = SelectionConstant.ITEM,
+            head = "Select Item"
+        ),
+        onResult = { result ->
+            val index = itemSelectionIndex
+            if (result != null && index != null) {
+                onAction(SpotCheckActions.SelectItem(index, result))
+            }
+            itemSelectionIndex = null
+        }
+    )
 
     Scaffold(
         modifier = Modifier
@@ -196,7 +127,7 @@ fun SpotCheckScreen(
                 text = "Submit",
                 onClick = { onAction(SpotCheckActions.Submit) },
                 enabled = !state.isLoading,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
             )
         }
     ) { paddingValues ->
@@ -304,7 +235,10 @@ fun SpotCheckScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onAction(SpotCheckActions.OpenLocationSelector(index)) }
+                                .clickable {
+                                        locationSelectionIndex = index
+                                        locationLauncher.launch(Unit)
+                                    }
                         ) {
                             InputTextField(
                                 text = item.location,
@@ -319,7 +253,10 @@ fun SpotCheckScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onAction(SpotCheckActions.OpenItemSelector(index)) }
+                                .clickable {
+                                        itemSelectionIndex = index
+                                        itemLauncher.launch(Unit)
+                                    }
                         ) {
                             Row(modifier = Modifier.fillMaxWidth()) {
                                 Box(modifier = Modifier.weight(1f)) {
@@ -370,3 +307,7 @@ fun SpotCheckScreen(
         }
     }
 }
+
+
+
+

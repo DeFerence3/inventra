@@ -14,12 +14,7 @@ sealed interface SpotCheckActions {
     data class RemoveItem(val index: Int) : SpotCheckActions
     data object Submit : SpotCheckActions
 
-    data class OpenItemSelector(val index: Int) : SpotCheckActions
-    data object CloseItemSelector : SpotCheckActions
-    data class OpenLocationSelector(val index: Int) : SpotCheckActions
-    data object CloseLocationSelector : SpotCheckActions
-    data class OnItemSearchQueryChanged(val query: String) : SpotCheckActions
-    data class OnLocationSearchQueryChanged(val query: String) : SpotCheckActions
     data class SelectItem(val index: Int, val item: com.deference.inventra.domain.model.item.SearchItem) : SpotCheckActions
     data class SelectLocation(val index: Int, val location: String) : SpotCheckActions
 }
+

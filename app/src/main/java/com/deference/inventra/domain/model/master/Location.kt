@@ -2,6 +2,7 @@ package com.deference.inventra.domain.model.master
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.io.Serializable as JavaSerializable
 
 @Serializable
 data class Location(
@@ -17,4 +18,4 @@ data class Location(
     val code: String,
     @SerialName("entityId")
     val entityId: Int
-)
+) : JavaSerializable

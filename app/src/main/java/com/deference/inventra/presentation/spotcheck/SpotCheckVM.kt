@@ -3,30 +3,23 @@ package com.deference.inventra.presentation.spotcheck
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.deference.inventra.core.utils.network.RequestState
-import com.deference.inventra.data.remote.ItemApiService
 import com.deference.inventra.domain.model.purchase.Item
 import com.deference.inventra.domain.model.spotcheck.SpotCheckRequestBody
-import com.deference.inventra.domain.usecase.GetLocationsUseCase
 import com.deference.inventra.domain.usecase.GetNextSerialNoUseCase
 import com.deference.inventra.domain.usecase.SubmitSpotCheckUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class SpotCheckVM @Inject constructor(
     private val submitSpotCheckUseCase: SubmitSpotCheckUseCase,
-    private val getNextSerialNoUseCase: GetNextSerialNoUseCase,
-    private val getLocationsUseCase: GetLocationsUseCase,
-    private val itemApiService: ItemApiService
+    private val getNextSerialNoUseCase: GetNextSerialNoUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SpotCheckState())
@@ -34,9 +27,6 @@ class SpotCheckVM @Inject constructor(
 
     private val _eventFlow = Channel<SpotCheckEvent>()
     val eventFlow = _eventFlow.receiveAsFlow()
-
-    private var searchJob: Job? = null
-    private var locationSearchJob: Job? = null
 
     init {
         fetchProposedSerialNo()
@@ -61,46 +51,6 @@ class SpotCheckVM @Inject constructor(
         }
     }
 
-    private fun searchItems(query: String) {
-        searchJob?.cancel()
-        searchJob = viewModelScope.launch {
-            delay(500.milliseconds)
-            updateState { it.copy(isSearchingItems = true) }
-            try {
-                val response = itemApiService.getItemList(query, 1, 50).await()
-                if (response.isSuccessful && response.body() != null) {
-                    val items = response.body()!!.items
-                    updateState { it.copy(isSearchingItems = false, searchedItems = items) }
-                } else {
-                    updateState { it.copy(isSearchingItems = false, searchedItems = emptyList()) }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                updateState { it.copy(isSearchingItems = false, searchedItems = emptyList()) }
-            }
-        }
-    }
-
-    private fun searchLocations(query: String) {
-        locationSearchJob?.cancel()
-        locationSearchJob = viewModelScope.launch {
-            delay(500.milliseconds)
-            getLocationsUseCase(query.ifEmpty { null }, 1, 50).collect { result ->
-                when (result) {
-                    is RequestState.Loading -> {
-                        updateState { it.copy(isSearchingLocations = true) }
-                    }
-                    is RequestState.Success -> {
-                        updateState { it.copy(isSearchingLocations = false, locations = result.data) }
-                    }
-                    is RequestState.Error -> {
-                        updateState { it.copy(isSearchingLocations = false, error = result.message) }
-                        _eventFlow.send(SpotCheckEvent.Error(result.message))
-                    }
-                }
-            }
-        }
-    }
 
     fun onAction(action: SpotCheckActions) {
         when (action) {
@@ -146,28 +96,6 @@ class SpotCheckVM @Inject constructor(
             SpotCheckActions.Submit -> {
                 submitSpotCheck()
             }
-            is SpotCheckActions.OpenItemSelector -> {
-                updateState { it.copy(showItemSelectorForIndex = action.index, itemSearchQuery = "", searchedItems = emptyList()) }
-                searchItems("")
-            }
-            SpotCheckActions.CloseItemSelector -> {
-                updateState { it.copy(showItemSelectorForIndex = null) }
-            }
-            is SpotCheckActions.OpenLocationSelector -> {
-                updateState { it.copy(showLocationSelectorForIndex = action.index, locationSearchQuery = "", locations = emptyList()) }
-                searchLocations("")
-            }
-            SpotCheckActions.CloseLocationSelector -> {
-                updateState { it.copy(showLocationSelectorForIndex = null) }
-            }
-            is SpotCheckActions.OnItemSearchQueryChanged -> {
-                updateState { it.copy(itemSearchQuery = action.query) }
-                searchItems(action.query)
-            }
-            is SpotCheckActions.OnLocationSearchQueryChanged -> {
-                updateState { it.copy(locationSearchQuery = action.query) }
-                searchLocations(action.query)
-            }
             is SpotCheckActions.SelectItem -> {
                 updateState { state ->
                     val newItems = state.items.toMutableList()
@@ -176,7 +104,7 @@ class SpotCheckVM @Inject constructor(
                             item = action.item,
                         )
                     }
-                    state.copy(items = newItems, showItemSelectorForIndex = null)
+                    state.copy(items = newItems)
                 }
             }
             is SpotCheckActions.SelectLocation -> {
@@ -185,7 +113,7 @@ class SpotCheckVM @Inject constructor(
                     if (action.index in newItems.indices) {
                         newItems[action.index] = newItems[action.index].copy(location = action.location)
                     }
-                    state.copy(items = newItems, showLocationSelectorForIndex = null)
+                    state.copy(items = newItems)
                 }
             }
         }
@@ -249,3 +177,8 @@ class SpotCheckVM @Inject constructor(
         _state.value = update(_state.value)
     }
 }
+
+
+
+
+

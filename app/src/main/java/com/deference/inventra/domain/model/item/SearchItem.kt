@@ -1,9 +1,9 @@
 package com.deference.inventra.domain.model.item
 
-
 import com.deference.inventra.domain.model.purchase.Item
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.io.Serializable as JavaSerializable
 
 @Serializable
 data class SearchItem(
@@ -23,7 +23,7 @@ data class SearchItem(
     val majorGroup: String,
     @SerialName("itemCode")
     val itemCode: String?
-) {
+) : JavaSerializable {
 
     fun toItem(): Item = Item(
         itemCode = itemCode ?: "",
