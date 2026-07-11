@@ -3,19 +3,15 @@ package com.deference.inventra.presentation.spotcheck
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -28,6 +24,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -47,6 +44,7 @@ import com.deference.inventra.core.utils.formatToString
 import com.deference.inventra.domain.model.item.SearchItem
 import com.deference.inventra.domain.model.master.Location
 import com.deference.inventra.presentation.core.components.AppButton
+import com.deference.inventra.presentation.core.components.Clickable
 import com.deference.inventra.presentation.core.components.InputTextField
 import com.deference.inventra.presentation.core.components.InputTextFieldType
 import com.deference.inventra.presentation.core.components.selectors.SelectionContract
@@ -142,7 +140,7 @@ fun SpotCheckScreen(
                     .fillMaxSize()
                     .padding(16.dp)
                     .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
                     text = "Master Values",
@@ -171,8 +169,6 @@ fun SpotCheckScreen(
                     type = InputTextFieldType.Outlined,
                     maxLine = 3
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -205,7 +201,7 @@ fun SpotCheckScreen(
                                 shape = RoundedCornerShape(8.dp)
                             )
                             .padding(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -233,51 +229,54 @@ fun SpotCheckScreen(
 
                         // Clicking this opens Location Selector dialog
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                        locationSelectionIndex = index
-                                        locationLauncher.launch(Unit)
-                                    }
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            InputTextField(
-                                text = item.location,
-                                onValueChange = {},
+                            Clickable(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                value = item.location,
                                 label = "Location",
-                                type = InputTextFieldType.Outlined,
-                                enabled = false
+                                error = item.locationError,
+                                onClick = {
+                                    locationSelectionIndex = index
+                                    locationLauncher.launch(Unit)
+                                }
                             )
                         }
 
-                        // Clicking this opens Item Selector dialog
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                        itemSelectionIndex = index
-                                        itemLauncher.launch(Unit)
-                                    }
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Row(modifier = Modifier.fillMaxWidth()) {
-                                Box(modifier = Modifier.weight(1f)) {
-                                    InputTextField(
-                                        text = item.itemCode,
-                                        onValueChange = {},
-                                        label = "Item Code",
-                                        type = InputTextFieldType.Outlined,
-                                        enabled = false
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)) {
+                                Box(modifier = Modifier.weight(0.3f)) {
+                                    Clickable(
+                                        modifier = Modifier,
+                                        value = item.itemCode,
+                                        label = "Code",
+                                        isError = item.itemError != null,
+                                        onClick = {
+                                            itemSelectionIndex = index
+                                            itemLauncher.launch(Unit)
+                                        }
                                     )
                                 }
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Box(modifier = Modifier.weight(1f)) {
-                                    InputTextField(
-                                        text = item.itemName,
-                                        onValueChange = {},
+                                Box(modifier = Modifier.weight(0.7f)) {
+                                    Clickable(
+                                        modifier = Modifier,
+                                        value = item.itemName,
                                         label = "Item Name",
-                                        type = InputTextFieldType.Outlined,
-                                        enabled = false
+                                        isError = item.itemError != null,
+                                        onClick = {
+                                            itemSelectionIndex = index
+                                            itemLauncher.launch(Unit)
+                                        }
                                     )
                                 }
+                            }
+                            item.itemError?.let{
+                                val typography = MaterialTheme.typography
+                                val bodySmall = typography.bodySmall
+                                Text(text = it, maxLines = 1, style = bodySmall, color = OutlinedTextFieldDefaults.colors().errorSupportingTextColor)
                             }
                         }
 
@@ -286,7 +285,8 @@ fun SpotCheckScreen(
                             onValueChange = { onAction(SpotCheckActions.OnItemQtyChanged(index, it)) },
                             label = "Physical Qty",
                             keyboardType = KeyboardType.Number,
-                            type = InputTextFieldType.Outlined
+                            type = InputTextFieldType.Outlined,
+                            error = item.physicalQtyError
                         )
 
                         InputTextField(

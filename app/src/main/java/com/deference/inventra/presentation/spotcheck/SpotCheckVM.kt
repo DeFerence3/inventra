@@ -67,7 +67,7 @@ class SpotCheckVM @Inject constructor(
                 updateState { state ->
                     val newItems = state.items.toMutableList()
                     if (action.index in newItems.indices) {
-                        newItems[action.index] = newItems[action.index].copy(physicalQty = action.qty)
+                        newItems[action.index] = newItems[action.index].copy(physicalQty = action.qty, physicalQtyError = null)
                     }
                     state.copy(items = newItems)
                 }
@@ -102,6 +102,7 @@ class SpotCheckVM @Inject constructor(
                     if (action.index in newItems.indices) {
                         newItems[action.index] = newItems[action.index].copy(
                             item = action.item,
+                            itemError = null,
                         )
                     }
                     state.copy(items = newItems)
@@ -111,7 +112,7 @@ class SpotCheckVM @Inject constructor(
                 updateState { state ->
                     val newItems = state.items.toMutableList()
                     if (action.index in newItems.indices) {
-                        newItems[action.index] = newItems[action.index].copy(location = action.location)
+                        newItems[action.index] = newItems[action.index].copy(location = action.location, locationError = null)
                     }
                     state.copy(items = newItems)
                 }
@@ -121,7 +122,28 @@ class SpotCheckVM @Inject constructor(
 
     private fun submitSpotCheck() {
         val currentState = _state.value
-        val mappedItems = currentState.items.map { input ->
+        if (currentState.items.isEmpty()) {
+            viewModelScope.launch { _eventFlow.send(SpotCheckEvent.Error("Add at least one item")) }
+            return
+        }
+
+        val validatedItems = currentState.items.map { input ->
+            val physicalQty = input.physicalQty.toDoubleOrNull()
+            input.copy(
+                locationError = if (input.location.isBlank()) "Location required" else null,
+                itemError = if (input.item == null) "Item required" else null,
+                physicalQtyError = if (physicalQty == null || physicalQty <= 0.0) "Physical qty required" else null,
+            )
+        }
+
+        if (validatedItems.any { it.locationError != null || it.itemError != null || it.physicalQtyError != null }) {
+            updateState { it.copy(items = validatedItems) }
+            viewModelScope.launch { _eventFlow.send(SpotCheckEvent.Error("Fix highlighted fields")) }
+            return
+        }
+
+        updateState { it.copy(items = validatedItems) }
+        val mappedItems = validatedItems.map { input ->
             Item(
                 itemCode = input.itemCode,
                 itemName = input.itemName,

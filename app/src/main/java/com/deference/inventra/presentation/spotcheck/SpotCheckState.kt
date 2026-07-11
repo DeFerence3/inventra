@@ -19,7 +19,10 @@ data class SpotCheckItemInput(
     val item: SearchItem? = null,
     val location: String = "",
     val physicalQty: String = "",
-    val remarks: String = ""
+    val remarks: String = "",
+    val locationError: String? = null,
+    val itemError: String? = null,
+    val physicalQtyError: String? = null
 ){
     val itemCode: String = item?.itemCode ?: ""
     val itemName: String = item?.itemName ?: ""

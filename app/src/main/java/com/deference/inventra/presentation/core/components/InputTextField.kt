@@ -1,5 +1,7 @@
 package com.deference.inventra.presentation.core.components
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,6 +12,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -23,6 +26,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import com.deference.inventra.R
 
 
@@ -167,6 +171,74 @@ fun InputTextField(
             maxLines = maxLine,
             isError = error != null,
             supportingText = error?.let { { Text(text = it) } }
+        )
+    }
+}
+
+@Composable
+fun Clickable(
+    modifier: Modifier = Modifier,
+    value: String,
+    onClick: (() -> Unit?)?,
+    label: String,
+    error: String? = null
+) {
+    Clickable(
+        modifier = modifier,
+        value = value,
+        onClick = onClick,
+        label = label,
+        isError = error != null,
+        supportingText = error,
+    )
+}
+
+@Composable
+fun Clickable(
+    modifier: Modifier = Modifier,
+    value: String,
+    onClick: (() -> Unit?)?,
+    label: String,
+    supportingText: String? = null,
+    isError: Boolean = false
+) {
+    OutlinedTextField(
+        value = value,
+        readOnly = true,
+        onValueChange = {},
+        modifier = modifier
+            .clickable(enabled = onClick != null){
+                onClick?.invoke()
+            },
+        label = { Text(text = label, maxLines = 1) },
+        colors = OutlinedTextFieldDefaults.colors().copy(
+            disabledTextColor = OutlinedTextFieldDefaults.colors().unfocusedTextColor,
+            disabledIndicatorColor = if (!isError) OutlinedTextFieldDefaults.colors().unfocusedIndicatorColor else OutlinedTextFieldDefaults.colors().errorIndicatorColor,
+            disabledLeadingIconColor = OutlinedTextFieldDefaults.colors().focusedLeadingIconColor,
+            disabledPlaceholderColor = OutlinedTextFieldDefaults.colors().unfocusedPlaceholderColor,
+            disabledLabelColor = OutlinedTextFieldDefaults.colors().unfocusedPlaceholderColor,
+            disabledSupportingTextColor = if (!isError) OutlinedTextFieldDefaults.colors().unfocusedSupportingTextColor else OutlinedTextFieldDefaults.colors().errorSupportingTextColor,
+        ),
+        enabled = false,
+        supportingText = supportingText?.let { { Text(text = it, maxLines = 1) } },
+        isError = isError
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ClickablePrev() {
+    Column() {
+        Clickable(
+            value = "123",
+            onClick = { },
+            label = "Clickable"
+        )
+        InputTextField(
+            text = "Text",
+            onValueChange = { },
+            label = "Remarks",
+            type = InputTextFieldType.Outlined
         )
     }
 }
