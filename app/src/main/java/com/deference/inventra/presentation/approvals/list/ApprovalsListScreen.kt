@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -98,6 +99,12 @@ fun ApprovalsListScreen(
                                     onClick = {
                                         onAction(ApprovalsListActions.OnStatusFilterChange(status))
                                         showFilterMenu = false
+                                    },
+                                    leadingIcon = {
+                                        Checkbox(
+                                            checked = state.selectedStatus == status,
+                                            onCheckedChange = null
+                                        )
                                     }
                                 )
                             }
@@ -108,6 +115,12 @@ fun ApprovalsListScreen(
                                     onClick = {
                                         onAction(ApprovalsListActions.OnTransTypeFilterChange(transType))
                                         showFilterMenu = false
+                                    },
+                                    leadingIcon = {
+                                        Checkbox(
+                                            checked = state.selectedTransType == transType,
+                                            onCheckedChange = null
+                                        )
                                     }
                                 )
                             }
