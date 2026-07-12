@@ -17,6 +17,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -35,13 +39,27 @@ fun Home(
 
     val menuItems = listOf(
         MenuItem("GRN", painterResource(R.drawable.ic_grn), InventraRoutes.SupplierList),
-        MenuItem("Purchase Request", painterResource(R.drawable.ic_cart), InventraRoutes.SupplierList),
+        MenuItem("Purchase Request", painterResource(R.drawable.ic_cart), InventraRoutes.PurchaseRequest),
         MenuItem("Approvals", painterResource(R.drawable.ic_approval), InventraRoutes.ApprovalList),
         MenuItem("Spot Check", painterResource(R.drawable.ic_stock), InventraRoutes.SpotCheck),
         MenuItem("Settings", painterResource(R.drawable.ic_settings)),
     )
 
     val blue = Color(0xFF1976D2)
+
+    var isLogoutDialogShowing by remember { mutableStateOf(false) }
+
+    if (isLogoutDialogShowing){
+        LogoutDialog(
+            modifier = Modifier,
+            onDismiss = {
+                isLogoutDialogShowing = isLogoutDialogShowing.not()
+            },
+            onLogout = {
+                Session.logout()
+            }
+        )
+    }
 
     Scaffold(
         modifier = Modifier
@@ -60,7 +78,7 @@ fun Home(
                 },
                 actions = { IconButton(
                     onClick = {
-                        Session.logout()
+                        isLogoutDialogShowing = isLogoutDialogShowing.not()
                     }
                 ) {
                     Icon(
