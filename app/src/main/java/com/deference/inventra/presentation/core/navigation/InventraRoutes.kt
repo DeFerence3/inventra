@@ -22,4 +22,6 @@ sealed interface InventraRoutes: NavKey {
     data object PurchaseRequest : InventraRoutes
     @Serializable
     data object SpotCheck : InventraRoutes
+    @Serializable
+    data object Scan : InventraRoutes
 }

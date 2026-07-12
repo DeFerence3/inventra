@@ -108,4 +108,9 @@ dependencies {
 
     //kotlinx.datetime
     implementation(libs.kotlinx.datetime)
+
+    //ocr
+    implementation(libs.bundles.ocr)
+
+    implementation(libs.material)
 }

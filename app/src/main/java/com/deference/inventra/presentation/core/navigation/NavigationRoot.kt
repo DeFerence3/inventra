@@ -17,8 +17,7 @@ import com.deference.inventra.presentation.approvals.approve.ApproveScreen
 import com.deference.inventra.presentation.approvals.approve.ApproveVM
 import com.deference.inventra.presentation.approvals.list.ApprovalsListScreen
 import com.deference.inventra.presentation.approvals.list.ApprovalsListVM
-import com.deference.inventra.presentation.core.navigation.InventraRoutes.ItemList
-import com.deference.inventra.presentation.core.navigation.InventraRoutes.PurchaseOrderList
+import com.deference.inventra.presentation.core.ocr.CameraScreen
 import com.deference.inventra.presentation.home.Home
 import com.deference.inventra.presentation.login.Login
 import com.deference.inventra.presentation.login.LoginVM
@@ -28,6 +27,8 @@ import com.deference.inventra.presentation.purchaseOrder.PurchaseOrderListScreen
 import com.deference.inventra.presentation.purchaseOrder.PurchaseOrderVM
 import com.deference.inventra.presentation.purchaserequest.PurchaseRequestScreen
 import com.deference.inventra.presentation.purchaserequest.PurchaseRequestVM
+import com.deference.inventra.presentation.spotcheck.SpotCheckScreen
+import com.deference.inventra.presentation.spotcheck.SpotCheckVM
 import com.deference.inventra.presentation.supplier.SupplierListScreen
 import com.deference.inventra.presentation.supplier.SupplierVM
 
@@ -102,7 +103,7 @@ fun NavigationRoot(
                             PurchaseOrderListScreen(
                                 onContinue = { poUUIDs ->
                                     backStack.add(
-                                        ItemList(
+                                        InventraRoutes.ItemList(
                                             poUUIDs,
                                             key.supplierId,
                                             key.supplierName
@@ -120,7 +121,7 @@ fun NavigationRoot(
                             val state by vm.state.collectAsState()
                             SupplierListScreen(
                                 onSupplierSelected = { supplier ->
-                                    backStack.add(PurchaseOrderList(supplier.id,supplier.name))
+                                    backStack.add(InventraRoutes.PurchaseOrderList(supplier.id,supplier.name))
                                 },
                                 onBack = { backStack.removeLastOrNull() },
                                 state = state,
@@ -167,14 +168,20 @@ fun NavigationRoot(
                             )
                         }
                         InventraRoutes.SpotCheck -> NavEntry(key){
-                            val vm = hiltViewModel<com.deference.inventra.presentation.spotcheck.SpotCheckVM>()
+                            val vm = hiltViewModel<SpotCheckVM>()
                             val state by vm.state.collectAsState()
-                            com.deference.inventra.presentation.spotcheck.SpotCheckScreen(
+                            SpotCheckScreen(
                                 onBack = { backStack.removeLastOrNull() },
                                 state = state,
                                 eventFlow = vm.eventFlow,
                                 onAction = vm::onAction
                             )
+                        }
+
+                        InventraRoutes.Scan -> NavEntry(key){
+                            CameraScreen{
+
+                            }
                         }
                     }
                 }
