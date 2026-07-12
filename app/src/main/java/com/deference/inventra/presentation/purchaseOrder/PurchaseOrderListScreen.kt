@@ -1,6 +1,7 @@
 package com.deference.inventra.presentation.purchaseOrder
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,13 +38,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.deference.inventra.domain.model.purchase.PurchaseOrder
 import com.deference.inventra.presentation.core.components.AppButton
+import com.deference.inventra.presentation.core.components.AppButtonType
 import com.deference.inventra.presentation.core.utils.ObserveEvent
 import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PurchaseOrderListScreen(
-    onContinue: (List<String>) -> Unit,
+    onContinue: (List<String>?) -> Unit,
     onBack: () -> Unit,
     state: PurchaseOrderState,
     eventFlow: Flow<PurchaseOrderEvent>,
@@ -88,11 +90,24 @@ fun PurchaseOrderListScreen(
             )
         },
         bottomBar = {
-            AppButton(
-                text = "Continue",
-                enabled = state.selectedPOUUIDs.isNotEmpty(),
-                onClick = { onContinue(state.selectedPOUUIDs.toList()) }
-            )
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                AnimatedVisibility(state.selectedPOUUIDs.isNotEmpty()) {
+                    AppButton(
+                        text = "Continue",
+                        enabled = state.selectedPOUUIDs.isNotEmpty(),
+                        onClick = { onContinue(state.selectedPOUUIDs.toList()) }
+                    )
+                }
+                AnimatedVisibility(!state.selectedPOUUIDs.isNotEmpty()) {
+                    AppButton(
+                        text = "Skip PO Selection",
+                        type = AppButtonType.Text,
+                        onClick = { onContinue(null) }
+                    )
+                }
+            }
         }
     ) { paddingValues ->
         LazyColumn(

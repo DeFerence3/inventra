@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.deference.inventra.core.utils.network.RequestState
 import com.deference.inventra.core.utils.now
+import com.deference.inventra.data.remote.ItemApiService
 import com.deference.inventra.domain.model.grn.GrnRequest
+import com.deference.inventra.domain.model.purchase.OrderItem
 import com.deference.inventra.domain.usecase.GetOrderItemsByPurchaseOrdersUseCase
 import com.deference.inventra.domain.usecase.SaveGrnUseCase
 import dagger.assisted.Assisted
@@ -15,8 +17,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import com.deference.inventra.domain.model.purchase.OrderItem
-import com.deference.inventra.data.remote.ItemApiService
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -27,7 +27,7 @@ import kotlinx.datetime.LocalDateTime
 class OrderItemListVM @AssistedInject constructor(
     @Assisted val supplierId: Int,
     @Assisted val supplierName: String,
-    @Assisted val poUUIDs: List<String>,
+    @Assisted val poUUIDs: List<String>?,
     private val getOrderItemsByPurchaseOrdersUseCase: GetOrderItemsByPurchaseOrdersUseCase,
     private val saveGrnUseCase: SaveGrnUseCase,
     private val itemApiService: ItemApiService
@@ -35,14 +35,20 @@ class OrderItemListVM @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(supplierId: Int,supplierName: String,poUUIDs: List<String>): OrderItemListVM
+        fun create(supplierId: Int,supplierName: String,poUUIDs: List<String>?): OrderItemListVM
     }
+
+    private val _state: MutableStateFlow<OrderItemListState>
 
     init {
-        fetchItems(poUUIDs)
+        if (poUUIDs != null) {
+            fetchItems(poUUIDs)
+            _state = MutableStateFlow(OrderItemListState(isLoading = true))
+        }else{
+            _state = MutableStateFlow(OrderItemListState(isLoading = false, error = null))
+        }
     }
 
-    private val _state = MutableStateFlow(OrderItemListState())
     val state: StateFlow<OrderItemListState> = _state.asStateFlow()
 
     private val _eventFlow = Channel<OrderItemListEvent>()
