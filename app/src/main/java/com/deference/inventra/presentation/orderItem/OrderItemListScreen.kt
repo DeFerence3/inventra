@@ -40,6 +40,10 @@ import com.deference.inventra.core.utils.asAmount
 import com.deference.inventra.domain.model.purchase.OrderItem
 import com.deference.inventra.presentation.core.components.AppButton
 import com.deference.inventra.presentation.core.components.ErrorDialog
+import androidx.activity.compose.rememberLauncherForActivityResult
+import com.deference.inventra.domain.model.item.SearchItem
+import com.deference.inventra.presentation.core.components.selectors.SelectionContract
+import com.deference.inventra.presentation.core.components.selectors.components.SelectionConstant
 import com.deference.inventra.presentation.core.utils.ObserveEvent
 import com.deference.inventra.presentation.orderItem.components.AddManualItemDialog
 import com.deference.inventra.presentation.orderItem.components.DeliveryChallanDialog
@@ -57,8 +61,20 @@ fun OrderItemListScreen(
 ) {
     var selectedItem by remember { mutableStateOf<OrderItem?>(null) }
     var showDeliveryChallanDialog by remember { mutableStateOf(false) }
-    var showAddDialog by remember { mutableStateOf(false) }
+    var selectedItemForAdd by remember { mutableStateOf<SearchItem?>(null) }
     val context = LocalContext.current
+
+    val itemLauncher = rememberLauncherForActivityResult(
+        contract = SelectionContract<SearchItem>(
+            selectionConst = SelectionConstant.ITEM,
+            head = "Select Item"
+        ),
+        onResult = { result ->
+            if (result != null) {
+                selectedItemForAdd = result
+            }
+        }
+    )
 
     eventFlow.ObserveEvent { event ->
         when (event) {
@@ -111,15 +127,13 @@ fun OrderItemListScreen(
         )
     }
 
-    if (showAddDialog) {
+    selectedItemForAdd?.let { item ->
         AddManualItemDialog(
-            searchResults = state.searchResults,
-            isSearching = state.isSearching,
-            onSearch = { query -> onAction(OrderItemListActions.SearchItems(query)) },
-            onDismiss = { showAddDialog = false },
-            onAdd = { item, qty, rate ->
-                onAction(OrderItemListActions.AddManualItem(item.toItem(), qty, rate))
-                showAddDialog = false
+            item = item,
+            onDismiss = { selectedItemForAdd = null },
+            onAdd = { manualItem, qty, rate ->
+                onAction(OrderItemListActions.AddManualItem(manualItem.toItem(), qty, rate))
+                selectedItemForAdd = null
             }
         )
     }
@@ -137,7 +151,7 @@ fun OrderItemListScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { showAddDialog = true }) {
+                    IconButton(onClick = { itemLauncher.launch(Unit) }) {
                         Icon(Icons.Default.Add, contentDescription = "Add Item")
                     }
                 }
@@ -160,7 +174,7 @@ fun OrderItemListScreen(
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (state.items.isEmpty()) {
                 Text(
-                    text = "No items found",
+                    text = "No items",
                     modifier = Modifier.align(Alignment.Center),
                     color = MaterialTheme.colorScheme.error
                 )
