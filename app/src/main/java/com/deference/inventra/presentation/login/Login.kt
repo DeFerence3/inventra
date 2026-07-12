@@ -82,7 +82,7 @@ fun Login(
             ) {
                 Image(
                     modifier = Modifier.size(200.dp),
-                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                    painter = painterResource(id = R.drawable.inventra),
                     contentDescription = null
                 )
                 Column(
