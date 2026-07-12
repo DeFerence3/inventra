@@ -55,7 +55,7 @@ fun InputTextField(
             visualTransformation = visualTransformation,
             value = text,
             label = { Text(text = label) },
-            enabled = enabled,
+            readOnly = !enabled,
             modifier = modifier.fillMaxWidth()
             ,
             keyboardOptions = KeyboardOptions(
@@ -84,7 +84,7 @@ fun InputTextField(
                 keyboardType = keyboardType,
                 imeAction = imeAction
             ),
-            enabled = enabled,
+            readOnly = !enabled,
             shape = MaterialTheme.shapes.small,
             maxLines = maxLine,
             isError = error != null,

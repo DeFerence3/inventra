@@ -6,6 +6,7 @@ import com.deference.inventra.domain.model.approvals.ApprovalActionRequest
 import com.deference.inventra.domain.model.approvals.ApprovalDetails
 import com.deference.inventra.domain.model.approvals.ApprovalItem
 import com.deference.inventra.domain.model.grn.GrnRequest
+import com.deference.inventra.domain.model.pr.PrRequestBody
 import com.deference.inventra.domain.model.purchase.ItemSummaryItem
 import com.deference.inventra.domain.model.purchase.OrderItem
 import com.deference.inventra.domain.model.purchase.PurchaseOrder
@@ -39,6 +40,10 @@ class PurchaseRepoImpl @Inject constructor(
 
     override fun saveGrn(grn: GrnRequest): Deferred<Response<Unit>> {
         return apiService.saveGrn(grn)
+    }
+
+    override fun savePurchaseRequisition(purchaseRequisition: PrRequestBody): Deferred<Response<Unit>> {
+        return apiService.savePurchaseRequisition(purchaseRequisition)
     }
 
     override fun getApprovals(

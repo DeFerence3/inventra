@@ -6,6 +6,7 @@ import com.deference.inventra.domain.model.approvals.ApprovalActionRequest
 import com.deference.inventra.domain.model.approvals.ApprovalDetails
 import com.deference.inventra.domain.model.approvals.ApprovalItem
 import com.deference.inventra.domain.model.grn.GrnRequest
+import com.deference.inventra.domain.model.pr.PrRequestBody
 import com.deference.inventra.domain.model.purchase.ItemSummaryItem
 import com.deference.inventra.domain.model.purchase.OrderItem
 import com.deference.inventra.domain.model.purchase.PurchaseOrder
@@ -36,6 +37,11 @@ interface PurchaseApiService {
     @POST("api/purchase/Grn")
     fun saveGrn(
         @Body grn: GrnRequest
+    ): Deferred<Response<Unit>>
+
+    @POST("api/purchase/requisition")
+    fun savePurchaseRequisition(
+        @Body purchaseRequisition: PrRequestBody
     ): Deferred<Response<Unit>>
 
     @GET("api/approval/ApprovalInstance/paged")

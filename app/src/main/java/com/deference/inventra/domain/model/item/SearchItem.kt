@@ -11,6 +11,8 @@ data class SearchItem(
     val itemId: Int,
     @SerialName("itemName")
     val itemName: String,
+    @SerialName("baseUnitId")
+    val baseUnitId: Int,
     @SerialName("baseUnit")
     val baseUnit: String,
     @SerialName("storeUnit")

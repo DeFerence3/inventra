@@ -26,6 +26,8 @@ import com.deference.inventra.presentation.orderItem.OrderItemListScreen
 import com.deference.inventra.presentation.orderItem.OrderItemListVM
 import com.deference.inventra.presentation.purchaseOrder.PurchaseOrderListScreen
 import com.deference.inventra.presentation.purchaseOrder.PurchaseOrderVM
+import com.deference.inventra.presentation.purchaserequest.PurchaseRequestScreen
+import com.deference.inventra.presentation.purchaserequest.PurchaseRequestVM
 import com.deference.inventra.presentation.supplier.SupplierListScreen
 import com.deference.inventra.presentation.supplier.SupplierVM
 
@@ -148,6 +150,16 @@ fun NavigationRoot(
                             )
                             val state by vm.state.collectAsState()
                             ApproveScreen(
+                                onBack = { backStack.removeLastOrNull() },
+                                state = state,
+                                eventFlow = vm.eventFlow,
+                                onAction = vm::onAction
+                            )
+                        }
+                        InventraRoutes.PurchaseRequest -> NavEntry(key){
+                            val vm = hiltViewModel<PurchaseRequestVM>()
+                            val state by vm.state.collectAsState()
+                            PurchaseRequestScreen(
                                 onBack = { backStack.removeLastOrNull() },
                                 state = state,
                                 eventFlow = vm.eventFlow,

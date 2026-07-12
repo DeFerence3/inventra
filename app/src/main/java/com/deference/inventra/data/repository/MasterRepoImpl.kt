@@ -4,6 +4,7 @@ import com.deference.inventra.data.remote.ApiService
 import com.deference.inventra.domain.model.Paginated
 import com.deference.inventra.domain.model.master.Location
 import com.deference.inventra.domain.model.master.Supplier
+import com.deference.inventra.domain.model.master.Unit
 import com.deference.inventra.domain.repository.MasterRepo
 import kotlinx.coroutines.Deferred
 import retrofit2.Response
@@ -26,5 +27,13 @@ class MasterRepoImpl @Inject constructor(
         pageSize: Int
     ): Deferred<Response<List<Location>>> {
         return apiService.locations(name, page, pageSize)
+    }
+
+    override fun getUnits(
+        baseUnitId: Int,
+        page: Int,
+        pageSize: Int
+    ): Deferred<Response<Paginated<Unit>>> {
+        return apiService.getUnits(baseUnitId, page, pageSize)
     }
 }

@@ -40,6 +40,17 @@ android {
     buildFeatures {
         compose = true
     }
+
+    //noinspection WrongGradleMethod
+    androidComponents {
+        onVariants { variant ->
+            variant.outputs.forEach { output ->
+                if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
+                    output.outputFileName = "${rootProject.name}.apk"
+                }
+            }
+        }
+    }
 }
 
 dependencies {
