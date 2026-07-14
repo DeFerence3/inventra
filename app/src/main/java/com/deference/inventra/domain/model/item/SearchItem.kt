@@ -15,12 +15,20 @@ data class SearchItem(
     val baseUnitId: Int,
     @SerialName("baseUnit")
     val baseUnit: String,
+    @SerialName("storeUnitId")
+    val storeUnitId: Int,
     @SerialName("storeUnit")
     val storeUnit: String,
+    @SerialName("itemGroupId")
+    val itemGroupId: Int,
     @SerialName("itemGroup")
     val itemGroup: String,
+    @SerialName("overGroupId")
+    val overGroupId: Int,
     @SerialName("overGroup")
     val overGroup: String,
+    @SerialName("majorGroupId")
+    val majorGroupId: Int,
     @SerialName("majorGroup")
     val majorGroup: String,
     @SerialName("itemCode")
@@ -28,6 +36,7 @@ data class SearchItem(
 ) : JavaSerializable {
 
     fun toItem(): Item = Item(
+        itemId = itemId,
         itemCode = itemCode ?: "",
         itemName = itemName,
         unitName = baseUnit,

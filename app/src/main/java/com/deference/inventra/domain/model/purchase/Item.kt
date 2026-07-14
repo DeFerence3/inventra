@@ -6,6 +6,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Item(
+    @SerialName("itemId")
+    val itemId: Int,
     @SerialName("itemCode")
     val itemCode: String,
     @SerialName("itemName")

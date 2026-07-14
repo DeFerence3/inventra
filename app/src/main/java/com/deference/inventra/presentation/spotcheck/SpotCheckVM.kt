@@ -145,6 +145,7 @@ class SpotCheckVM @Inject constructor(
         updateState { it.copy(items = validatedItems) }
         val mappedItems = validatedItems.map { input ->
             Item(
+                itemId = input.item!!.itemId,
                 itemCode = input.itemCode,
                 itemName = input.itemName,
                 unitName = "Unit",

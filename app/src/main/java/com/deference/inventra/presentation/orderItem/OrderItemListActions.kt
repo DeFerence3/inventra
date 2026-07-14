@@ -1,5 +1,6 @@
 package com.deference.inventra.presentation.orderItem
 
+import com.deference.inventra.domain.model.item.SearchItem
 import kotlinx.datetime.LocalDateTime
 
 sealed interface OrderItemListActions {
@@ -15,7 +16,7 @@ sealed interface OrderItemListActions {
     ) : OrderItemListActions
     data class SearchItems(val query: String) : OrderItemListActions
     data class AddManualItem(
-        val item: com.deference.inventra.domain.model.purchase.Item,
+        val item: SearchItem,
         val qty: Double,
         val rate: Double
     ) : OrderItemListActions

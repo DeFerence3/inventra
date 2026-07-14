@@ -1,6 +1,7 @@
 package com.deference.inventra.presentation.orderItem
 
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,11 +38,10 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.deference.inventra.core.utils.asAmount
+import com.deference.inventra.domain.model.item.SearchItem
 import com.deference.inventra.domain.model.purchase.OrderItem
 import com.deference.inventra.presentation.core.components.AppButton
 import com.deference.inventra.presentation.core.components.ErrorDialog
-import androidx.activity.compose.rememberLauncherForActivityResult
-import com.deference.inventra.domain.model.item.SearchItem
 import com.deference.inventra.presentation.core.components.selectors.SelectionContract
 import com.deference.inventra.presentation.core.components.selectors.components.SelectionConstant
 import com.deference.inventra.presentation.core.utils.ObserveEvent
@@ -132,7 +132,7 @@ fun OrderItemListScreen(
             item = item,
             onDismiss = { selectedItemForAdd = null },
             onAdd = { manualItem, qty, rate ->
-                onAction(OrderItemListActions.AddManualItem(manualItem.toItem(), qty, rate))
+                onAction(OrderItemListActions.AddManualItem(manualItem, qty, rate))
                 selectedItemForAdd = null
             }
         )

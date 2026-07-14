@@ -6,6 +6,7 @@ import com.deference.inventra.core.utils.network.RequestState
 import com.deference.inventra.core.utils.now
 import com.deference.inventra.data.remote.ItemApiService
 import com.deference.inventra.domain.model.grn.GrnRequest
+import com.deference.inventra.domain.model.item.SearchItem
 import com.deference.inventra.domain.model.purchase.OrderItem
 import com.deference.inventra.domain.usecase.GetOrderItemsByPurchaseOrdersUseCase
 import com.deference.inventra.domain.usecase.SaveGrnUseCase
@@ -25,9 +26,10 @@ import kotlinx.datetime.LocalDateTime
 
 @HiltViewModel(assistedFactory = OrderItemListVM.Factory::class)
 class OrderItemListVM @AssistedInject constructor(
-    @Assisted val supplierId: Int,
-    @Assisted val supplierName: String,
-    @Assisted val poUUIDs: List<String>?,
+    @Assisted("supplierId") val supplierId: Int,
+    @Assisted("supplierName") val supplierName: String,
+    @Assisted("poUUIDs") val poUUIDs: List<String>?,
+    @Assisted("scannedBillJson") val scannedBillJson: String? = null,
     private val getOrderItemsByPurchaseOrdersUseCase: GetOrderItemsByPurchaseOrdersUseCase,
     private val saveGrnUseCase: SaveGrnUseCase,
     private val itemApiService: ItemApiService
@@ -35,16 +37,71 @@ class OrderItemListVM @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(supplierId: Int,supplierName: String,poUUIDs: List<String>?): OrderItemListVM
+        fun create(
+            @Assisted("supplierId") supplierId: Int,
+            @Assisted("supplierName") supplierName: String,
+            @Assisted("poUUIDs") poUUIDs: List<String>?,
+            @Assisted("scannedBillJson") scannedBillJson: String? = null
+        ): OrderItemListVM
     }
 
     private val _state: MutableStateFlow<OrderItemListState>
 
     init {
-        if (poUUIDs != null) {
+        val scannedBill = scannedBillJson?.let {
+            try {
+                kotlinx.serialization.json.Json.decodeFromString(com.deference.inventra.domain.model.ocr.ScannedBill.serializer(), it)
+            } catch (e: Exception) {
+                null
+            }
+        }
+        if (scannedBill != null) {
+            val parsedItems = scannedBill.items.map { billItem ->
+                OrderItem(
+                    purchaseOrderId = 0,
+                    purchaseOrderItemId = 0,
+                    purchaseOrderItemUuid = java.util.UUID.randomUUID().toString(),
+                    itemId = 0,
+                    itemName = billItem.name,
+                    itemCode = "",
+                    itemGroupId = 0,
+                    itemGroupName = "",
+                    majorGroupId = 0,
+                    majorGroupName = "",
+                    overGroupId = 0,
+                    overGroupName = "",
+                    unitId = 0,
+                    unitName = "Pcs",
+                    baseUnitId = 0,
+                    baseUnitName = "Pcs",
+                    purchaseItemId = 0,
+                    purchaseItemName = billItem.name,
+                    requiredQty = billItem.qty,
+                    pricePerUnit = billItem.rate,
+                    pricePerBaseUnit = billItem.rate,
+                    receivedQty = billItem.qty,
+                    remarks = "",
+                    locationId = 1,
+                    locationName = "Default Location",
+                    discountPercentage = 0.0,
+                    discountAmount = 0.0,
+                    taxPercentage = 5.0,
+                    taxAmount = billItem.tax,
+                    netAmount = billItem.qty * billItem.rate,
+                    grossAmount = billItem.gross,
+                    expiryDays = null,
+                    storeUnitId = 0,
+                    storeUnitName = "Pcs",
+                    isHACCPRequired = false,
+                    isStockItem = true,
+                    conversionFactorBUToSU = 1.0
+                )
+            }
+            _state = MutableStateFlow(OrderItemListState(isLoading = false, items = parsedItems, error = null))
+        } else if (!poUUIDs.isNullOrEmpty()) {
             fetchItems(poUUIDs)
             _state = MutableStateFlow(OrderItemListState(isLoading = true))
-        }else{
+        } else {
             _state = MutableStateFlow(OrderItemListState(isLoading = false, error = null))
         }
     }
@@ -80,26 +137,26 @@ class OrderItemListVM @AssistedInject constructor(
         }
     }
 
-    private fun addManualItem(item: com.deference.inventra.domain.model.purchase.Item, qty: Double, rate: Double) {
+    private fun addManualItem(item: SearchItem, qty: Double, rate: Double) {
         val net = qty * rate
         val tax = net * 5.0 / 100.0
         val newItem = OrderItem(
             purchaseOrderId = 0,
             purchaseOrderItemId = 0,
-            purchaseOrderItemUuid = java.util.UUID.randomUUID().toString(),
-            itemId = 0,
+            purchaseOrderItemUuid = "",
+            itemId = item.itemId,
             itemName = item.itemName,
-            itemCode = item.itemCode,
-            itemGroupId = 0,
-            itemGroupName = "",
-            majorGroupId = 0,
-            majorGroupName = "",
-            overGroupId = 0,
-            overGroupName = "",
-            unitId = 0,
-            unitName = item.unitName,
-            baseUnitId = 0,
-            baseUnitName = item.baseUnitName,
+            itemCode = item.itemCode ?: "N/A",
+            itemGroupId = item.itemGroupId,
+            itemGroupName = item.itemGroup,
+            majorGroupId = item.majorGroupId,
+            majorGroupName = item.itemGroup,
+            overGroupId = item.overGroupId,
+            overGroupName = item.overGroup,
+            unitId = item.baseUnitId,
+            unitName = item.baseUnit,
+            baseUnitId = item.baseUnitId,
+            baseUnitName = item.baseUnit,
             purchaseItemId = 0,
             purchaseItemName = item.itemName,
             requiredQty = qty,
@@ -108,7 +165,7 @@ class OrderItemListVM @AssistedInject constructor(
             receivedQty = qty,
             remarks = "",
             locationId = 1,
-            locationName = item.locationName.ifEmpty { "Default Location" },
+            locationName = "Default Location",
             discountPercentage = 0.0,
             discountAmount = 0.0,
             taxPercentage = 5.0,
@@ -116,8 +173,8 @@ class OrderItemListVM @AssistedInject constructor(
             netAmount = net,
             grossAmount = net + tax,
             expiryDays = null,
-            storeUnitId = 0,
-            storeUnitName = item.baseUnitName,
+            storeUnitId = item.storeUnitId,
+            storeUnitName = item.storeUnit,
             isHACCPRequired = false,
             isStockItem = true,
             conversionFactorBUToSU = 1.0
