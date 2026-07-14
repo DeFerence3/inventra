@@ -113,4 +113,7 @@ dependencies {
     implementation(libs.bundles.ocr)
 
     implementation(libs.material)
+
+    //permissions
+    implementation(libs.accompanist.permissions)
 }

@@ -31,6 +31,7 @@ import com.deference.inventra.presentation.spotcheck.SpotCheckScreen
 import com.deference.inventra.presentation.spotcheck.SpotCheckVM
 import com.deference.inventra.presentation.supplier.SupplierListScreen
 import com.deference.inventra.presentation.supplier.SupplierVM
+import kotlinx.serialization.json.Json
 
 @Composable
 fun NavigationRoot(
@@ -59,7 +60,12 @@ fun NavigationRoot(
                         is InventraRoutes.ItemList -> NavEntry(key){
                             val vm = hiltViewModel<OrderItemListVM, OrderItemListVM.Factory>(
                                 creationCallback = { factory ->
-                                    factory.create(key.supplierId,key.supplierName,key.poUUIDs)
+                                    factory.create(
+                                        key.supplierId,
+                                        key.supplierName,
+                                        key.poUUIDs ?: emptyList(),
+                                        key.scannedBillJson
+                                    )
                                 }
                             )
                             val state by vm.state.collectAsState()
@@ -179,9 +185,25 @@ fun NavigationRoot(
                         }
 
                         InventraRoutes.Scan -> NavEntry(key){
-                            CameraScreen{
-
-                            }
+                            CameraScreen(
+                                onBillScanned = { scannedBill ->
+                                    val json = Json.encodeToString(
+                                        com.deference.inventra.domain.model.ocr.ScannedBill.serializer(),
+                                        scannedBill
+                                    )
+                                    backStack.add(
+                                        InventraRoutes.ItemList(
+                                            poUUIDs = emptyList(),
+                                            supplierId = 1,
+                                            supplierName = scannedBill.supplierName,
+                                            scannedBillJson = json
+                                        )
+                                    )
+                                },
+                                onBack = {
+                                    backStack.removeLastOrNull()
+                                }
+                            )
                         }
                     }
                 }

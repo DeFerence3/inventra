@@ -13,7 +13,7 @@ sealed interface InventraRoutes: NavKey {
     @Serializable
     data class PurchaseOrderList(val supplierId: Int,val supplierName: String) : InventraRoutes
     @Serializable
-    data class ItemList(val poUUIDs: List<String>?,val supplierId: Int,val supplierName: String) : InventraRoutes
+    data class ItemList(val poUUIDs: List<String>?,val supplierId: Int,val supplierName: String, val scannedBillJson: String? = null) : InventraRoutes
     @Serializable
     data object ApprovalList : InventraRoutes
     @Serializable

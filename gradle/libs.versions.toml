@@ -29,6 +29,7 @@ coreSplashscreen = "1.2.0"
 androidxCamera = "1.6.1"
 mlkitTextRecognition = "16.0.1"
 material = "1.14.0"
+accompanistPermissions = "0.37.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -77,6 +78,8 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.
 
 #mlkit-for ocr
 mlkit-text-recognition = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkitTextRecognition" }
+
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 
 #camera apis for ocr
 camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "androidxCamera" }
