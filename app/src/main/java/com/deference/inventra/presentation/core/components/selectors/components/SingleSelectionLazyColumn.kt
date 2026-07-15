@@ -64,17 +64,17 @@ fun SingleSelectionLazyColumn(
         sortedGroups.forEach { (letter, groupItems) ->
             stickyHeader {
                 if (isStickHeaderVisible) {
-                    Surface(
-                        Modifier.fillMaxWidth(),
-                        shadowElevation = 2.dp
-                    ) {
+//                    Surface(
+//                        Modifier.fillMaxWidth(),
+//                        shadowElevation = 2.dp
+//                    ) {
                         Text(
                             modifier = Modifier.padding(14.dp),
                             text = letter.toString(),
                             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
                             overflow = TextOverflow.Ellipsis
                         )
-                    }
+//                    }
                 }
             }
             items(
