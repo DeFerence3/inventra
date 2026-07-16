@@ -1,5 +1,9 @@
 package com.deference.inventra.presentation.home
 
+import android.Manifest
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -18,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,15 +30,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.deference.inventra.R
 import com.deference.inventra.core.Session
+import com.deference.inventra.presentation.core.components.PermissionRequestDialog
 import com.deference.inventra.presentation.core.navigation.InventraRoutes
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun Home(
     onMenuClick: (InventraRoutes) -> Unit
@@ -49,8 +59,34 @@ fun Home(
     )
 
     val blue = Color(0xFF1976D2)
-
+    val context = LocalContext.current
     var isLogoutDialogShowing by remember { mutableStateOf(false) }
+    var showOpenSettingsWhenPermissionDenied by remember { mutableStateOf(false) }
+
+    val notificationPermission = rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS){
+        if (!it) showOpenSettingsWhenPermissionDenied = true
+    }
+
+    LaunchedEffect(Unit) {
+        if (!notificationPermission.status.isGranted) {
+            notificationPermission.launchPermissionRequest()
+        }
+    }
+
+    if (showOpenSettingsWhenPermissionDenied){
+        PermissionRequestDialog(
+            onDenied = { showOpenSettingsWhenPermissionDenied = false },
+            onGrand = {
+                showOpenSettingsWhenPermissionDenied = false
+                val intent = Intent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.fromParts("package", context.packageName, null)
+                )
+                context.startActivity(intent,null)
+            },
+            permissions = "Notification"
+        )
+    }
 
     if (isLogoutDialogShowing){
         LogoutDialog(
