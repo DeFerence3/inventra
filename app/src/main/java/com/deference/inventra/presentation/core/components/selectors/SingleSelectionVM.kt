@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.deference.inventra.core.utils.network.RequestState
 import com.deference.inventra.data.remote.ItemApiService
-import com.deference.inventra.domain.model.item.SearchItem
-import com.deference.inventra.domain.model.master.Location
 import com.deference.inventra.domain.usecase.GetLocationsUseCase
 import com.deference.inventra.presentation.core.components.selectors.components.SelectionConstant
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,7 +11,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.serialization.SerializationException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -49,14 +49,18 @@ class SingleSelectionVM @Inject constructor(
 
     private suspend fun loadLocations(query: String): List<SelectAnyProvider> {
         var list = emptyList<SelectAnyProvider>()
-        getLocationsUseCase(query.ifEmpty { null }, 1, 50).collect { result ->
-            if (result is RequestState.Success) {
-                list = result.data.map { location ->
-                    SelectAnyProvider(
-                        title = location.name,
-                        subTitle = location.code,
-                        item = location
-                    )
+        getLocationsUseCase(query.ifEmpty { null }, 1, 50).collectLatest { result ->
+            when(result){
+                is RequestState.Error -> updateState { it.copy(error = result.message) }
+                RequestState.Loading -> Unit
+                is RequestState.Success -> {
+                    list = result.data.map { location ->
+                        SelectAnyProvider(
+                            title = location.name,
+                            subTitle = location.code,
+                            item = location
+                        )
+                    }
                 }
             }
         }
@@ -77,7 +81,16 @@ class SingleSelectionVM @Inject constructor(
             } else {
                 emptyList()
             }
+        } catch (e: SerializationException) {
+            e.printStackTrace()
+            updateState { it.copy(error = "Invalid response from server") }
+            emptyList()
+        }catch (e: Exception) {
+            e.printStackTrace()
+            updateState { it.copy(error = "Unhandled Exception: ${e.message}") }
+            emptyList()
         } catch (e: Exception) {
+            e.printStackTrace()
             emptyList()
         }
     }

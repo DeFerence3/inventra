@@ -4,5 +4,6 @@ data class SingleSelectionState(
     val list: List<SelectAnyProvider> = emptyList(),
     val searchQuery: String = "",
     val type: String = "",
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val error: String? = null
 )

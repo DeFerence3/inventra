@@ -33,7 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.deference.inventra.domain.model.item.SearchItem
 import com.deference.inventra.domain.model.master.Location
 import com.deference.inventra.presentation.core.components.list.ListItem
@@ -42,7 +42,6 @@ import com.deference.inventra.presentation.core.components.selectors.components.
 import com.deference.inventra.presentation.core.components.selectors.components.SelectionConstant
 import com.deference.inventra.presentation.core.theme.InventraTheme
 import dagger.hilt.android.AndroidEntryPoint
-import java.io.Serializable
 
 @AndroidEntryPoint
 class SingleSelectionActivity : ComponentActivity() {
@@ -77,7 +76,7 @@ class SingleSelectionActivity : ComponentActivity() {
             else -> null
         } ?: return
 
-        setResult(RESULT_OK, Intent().putExtra("item", selectedItem as Serializable))
+        setResult(RESULT_OK, Intent().putExtra("item", selectedItem))
         finish()
     }
 
@@ -139,6 +138,15 @@ class SingleSelectionActivity : ComponentActivity() {
                                 contentAlignment = Alignment.Center
                             ) {
                                 CircularProgressIndicator()
+                            }
+                        }
+
+                        state.error != null -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(state.error ?: "Error", style = MaterialTheme.typography.bodyMedium,color = MaterialTheme.colorScheme.error)
                             }
                         }
 

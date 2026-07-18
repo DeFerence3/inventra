@@ -10,6 +10,7 @@ import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.serialization.SerializationException
 import java.io.IOException
 import javax.inject.Inject
 
@@ -36,7 +37,10 @@ class GetLocationsUseCase @Inject constructor(
             emit(RequestState.Error("Network request failed: ${e.message}"))
         } catch (e: TimeoutCancellationException) {
             emit(RequestState.Error("Request timed out"))
-        } catch (e: Exception) {
+        } catch (e: SerializationException) {
+            e.printStackTrace()
+            emit(RequestState.Error("Invalid response from server"))
+        }catch (e: Exception) {
             e.printStackTrace()
             emit(RequestState.Error("Unhandled Exception: ${e.message}"))
         }
