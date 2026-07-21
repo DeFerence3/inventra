@@ -152,14 +152,16 @@ fun SpotCheckScreen(
                     text = state.spotCheckNo,
                     onValueChange = { onAction(SpotCheckActions.OnSpotCheckNoChanged(it)) },
                     label = "Spot Check No",
-                    type = InputTextFieldType.Outlined
+                    type = InputTextFieldType.Outlined,
+                    enabled = false
                 )
 
                 InputTextField(
                     text = state.spotCheckDate.formatToString(),
                     onValueChange = { /*onAction(SpotCheckActions.OnSpotCheckDateChanged(it))*/ },
                     label = "Spot Check Date",
-                    type = InputTextFieldType.Outlined
+                    type = InputTextFieldType.Outlined,
+                    enabled = false
                 )
 
                 InputTextField(
