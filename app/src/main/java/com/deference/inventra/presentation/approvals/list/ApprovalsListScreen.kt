@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.deference.inventra.domain.model.approvals.ApprovalRequestType
 import com.deference.inventra.presentation.approvals.list.components.ApprovalCard
 import com.deference.inventra.presentation.core.components.ErrorDialog
 import com.deference.inventra.presentation.core.components.InputTextField
@@ -109,9 +110,9 @@ fun ApprovalsListScreen(
                                 )
                             }
                             HorizontalDivider()
-                            listOf("All","PurchaseRequisition", "PurchaseOrderItem", "StockRequest").forEach { transType ->
+                            ApprovalRequestType.entries.forEach { transType ->
                                 DropdownMenuItem(
-                                    text = { Text(transType) },
+                                    text = { Text(transType.readableName) },
                                     onClick = {
                                         onAction(ApprovalsListActions.OnTransTypeFilterChange(transType))
                                         showFilterMenu = false

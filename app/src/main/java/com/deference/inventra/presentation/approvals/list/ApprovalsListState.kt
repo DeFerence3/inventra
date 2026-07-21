@@ -2,6 +2,7 @@ package com.deference.inventra.presentation.approvals.list
 
 import com.deference.inventra.domain.model.approvals.ApprovalDetails
 import com.deference.inventra.domain.model.approvals.ApprovalItem
+import com.deference.inventra.domain.model.approvals.ApprovalRequestType
 
 data class ApprovalsListState(
     val approvals: List<ApprovalItem> = emptyList(),
@@ -10,7 +11,7 @@ data class ApprovalsListState(
     
     val selectedStatus: String = "Pending",
     val searchQuery: String = "",
-    val selectedTransType: String = "All",
+    val selectedTransType: ApprovalRequestType = ApprovalRequestType.ALL,
     val isRefreshing: Boolean = false,
     
     val selectedApprovalDetails: ApprovalDetails? = null,

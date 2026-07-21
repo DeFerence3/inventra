@@ -5,6 +5,7 @@ import com.deference.inventra.core.utils.network.RequestState
 import com.deference.inventra.core.utils.network.isInternetAvailable
 import com.deference.inventra.domain.model.Paginated
 import com.deference.inventra.domain.model.approvals.ApprovalItem
+import com.deference.inventra.domain.model.approvals.ApprovalRequestType
 import com.deference.inventra.domain.repository.PurchaseRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
@@ -19,7 +20,7 @@ class GetApprovalsUseCase @Inject constructor(
 ) {
     operator fun invoke(
         status: String,
-        transType: String,
+        transType: ApprovalRequestType,
         search: String?,
         isGrouped: Boolean = true,
         page: Int = 1,
