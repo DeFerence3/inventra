@@ -7,13 +7,11 @@ import com.deference.inventra.domain.model.approvals.ApprovalDetails
 import com.deference.inventra.domain.repository.PurchaseRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import java.io.IOException
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.seconds
 
 class GetApprovalDetailsUseCase @Inject constructor(
     private val repository: PurchaseRepo
@@ -26,7 +24,6 @@ class GetApprovalDetailsUseCase @Inject constructor(
 
         try {
             emit(RequestState.Loading)
-            delay(3.seconds)
             val deferredResponse = repository.getApprovalDetails(approvalId)
             val retrofitResponse = deferredResponse.await()
             if (retrofitResponse.isSuccessful) {
@@ -42,7 +39,7 @@ class GetApprovalDetailsUseCase @Inject constructor(
         } catch (e: IOException) {
             e.printStackTrace()
             emit(RequestState.Error("Network request failed: ${e.message}"))
-        } catch (e: TimeoutCancellationException) {
+        } catch (_: TimeoutCancellationException) {
             emit(RequestState.Error("Request timed out"))
         } catch (e: Exception) {
             e.printStackTrace()

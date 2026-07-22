@@ -5,12 +5,12 @@ import com.deference.inventra.domain.model.Paginated
 import com.deference.inventra.domain.model.approvals.ApprovalActionRequest
 import com.deference.inventra.domain.model.approvals.ApprovalDetails
 import com.deference.inventra.domain.model.approvals.ApprovalItem
-import com.deference.inventra.domain.model.approvals.ApprovalRequestType
 import com.deference.inventra.domain.model.grn.GrnRequest
 import com.deference.inventra.domain.model.pr.PrRequestBody
 import com.deference.inventra.domain.model.purchase.ItemSummaryItem
 import com.deference.inventra.domain.model.purchase.OrderItem
 import com.deference.inventra.domain.model.purchase.PurchaseOrder
+import com.deference.inventra.domain.model.purchase.requisition.RequisitionSummaryResponse
 import kotlinx.coroutines.Deferred
 import retrofit2.Response
 import retrofit2.http.Body
@@ -48,7 +48,7 @@ interface PurchaseApiService {
     @GET("api/approval/ApprovalInstance/paged")
     fun getApprovals(
         @Query("Status") status: String,
-        @Query("transType") transType: ApprovalRequestType?,
+        @Query("transType") transType: String?,
         @Query("SearchKey") search: String?,
         @Query("page") pageNumber: Int,
         @Query("pageSize") pageSize: Int,
@@ -65,6 +65,11 @@ interface PurchaseApiService {
     fun getPurchaseOrderItemsSummary(
         @Body purchaseOrderUUIDs: List<String>
     ): Deferred<Response<List<ItemSummaryItem>>>
+
+    @POST("/api/purchase/requisition/summary")
+    fun getPurchaseRequisitionSummary(
+        @Body requisitionUUIDs: List<String>
+    ): Deferred<Response<List<RequisitionSummaryResponse>>>
 
     @POST("api/approval/ApprovalAction/{status}")
     fun performApprovalAction(

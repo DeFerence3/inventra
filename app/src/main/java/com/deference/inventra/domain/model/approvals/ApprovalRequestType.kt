@@ -14,6 +14,9 @@ enum class ApprovalRequestType {
     @SerialName("StockRequest")
     STOCK_REQUEST;
 
+    val apiValue: String
+        get() = serializer().descriptor.getElementName(ordinal)
+
     val readableName: String
         get() = name.replace("_", " ")
             .lowercase()

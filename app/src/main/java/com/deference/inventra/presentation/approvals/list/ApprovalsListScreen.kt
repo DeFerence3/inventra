@@ -48,7 +48,7 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun ApprovalsListScreen(
     onBack: () -> Unit,
-    onApprovalClick: (uuid: String,transUuId: String) -> Unit,
+    onApprovalClick: (type: ApprovalRequestType,uuid: String,transUuId: String) -> Unit,
     state: ApprovalsListState,
     eventFlow: Flow<ApprovalsListEvent>,
     onAction: (ApprovalsListActions) -> Unit,
@@ -164,7 +164,7 @@ fun ApprovalsListScreen(
                         items(state.approvals) { item ->
                             ApprovalCard(
                                 item = item,
-                                onClick = { onApprovalClick(item.uuid,item.transUuid) },)
+                                onClick = { onApprovalClick(item.transType,item.uuid,item.transUuid) },)
                         }
                     }
                 }

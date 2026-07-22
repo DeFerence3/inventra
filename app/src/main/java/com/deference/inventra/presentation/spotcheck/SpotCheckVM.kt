@@ -156,10 +156,10 @@ class SpotCheckVM @Inject constructor(
                 grossAmount = 0.0,
                 vendorName = "",
                 locationName = input.location,
-                stockOnHand = 0,
-                itemGroupName = input.item?.itemGroup,
-                overGroupName = input.item?.overGroup,
-                majorGroupName = input.item?.majorGroup,
+                stockOnHand = 0.0,
+                itemGroupName = input.item.itemGroup,
+                overGroupName = input.item.overGroup,
+                majorGroupName = input.item.majorGroup,
             )
         }
 

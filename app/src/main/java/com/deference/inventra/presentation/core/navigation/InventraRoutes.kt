@@ -1,6 +1,7 @@
 package com.deference.inventra.presentation.core.navigation
 
 import androidx.navigation3.runtime.NavKey
+import com.deference.inventra.domain.model.approvals.ApprovalRequestType
 import kotlinx.serialization.Serializable
 
 sealed interface InventraRoutes: NavKey {
@@ -17,7 +18,7 @@ sealed interface InventraRoutes: NavKey {
     @Serializable
     data object ApprovalList : InventraRoutes
     @Serializable
-    data class Approve(val approvalId: String,val transUuId: List<String>): InventraRoutes
+    data class Approve(val type: ApprovalRequestType, val approvalId: String, val transUuId: List<String>): InventraRoutes
     @Serializable
     data object PurchaseRequest : InventraRoutes
     @Serializable

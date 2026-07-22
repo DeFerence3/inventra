@@ -140,8 +140,8 @@ fun NavigationRoot(
                             val state by vm.state.collectAsState()
                             ApprovalsListScreen(
                                 onBack = { backStack.removeLastOrNull() },
-                                onApprovalClick = { id,transUuId ->
-                                    backStack.add(InventraRoutes.Approve(id,transUuId.split(",")))
+                                onApprovalClick = { type,id,transUuId ->
+                                    backStack.add(InventraRoutes.Approve(type,id,transUuId.split(",")))
                                 },
                                 state = state,
                                 eventFlow = vm.eventFlow,
@@ -152,7 +152,7 @@ fun NavigationRoot(
                         is InventraRoutes.Approve -> NavEntry(key){
                             val vm = hiltViewModel<ApproveVM, ApproveVM.Factory>(
                                 creationCallback = { factory ->
-                                    factory.create(key.approvalId,key.transUuId)
+                                    factory.create(key.type,key.approvalId,key.transUuId)
                                 }
                             )
                             val state by vm.state.collectAsState()

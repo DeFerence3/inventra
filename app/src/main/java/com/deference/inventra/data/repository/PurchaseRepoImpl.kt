@@ -11,6 +11,7 @@ import com.deference.inventra.domain.model.pr.PrRequestBody
 import com.deference.inventra.domain.model.purchase.ItemSummaryItem
 import com.deference.inventra.domain.model.purchase.OrderItem
 import com.deference.inventra.domain.model.purchase.PurchaseOrder
+import com.deference.inventra.domain.model.purchase.requisition.RequisitionSummaryResponse
 import com.deference.inventra.domain.repository.PurchaseRepo
 import kotlinx.coroutines.Deferred
 import retrofit2.Response
@@ -57,7 +58,7 @@ class PurchaseRepoImpl @Inject constructor(
     ): Deferred<Response<Paginated<ApprovalItem>>> {
         return apiService.getApprovals(
             status = status,
-            transType = transType.takeIf { it != ApprovalRequestType.ALL },
+            transType = transType.takeIf { it != ApprovalRequestType.ALL }?.apiValue,
             isGrouped = isGrouped,
             pageSize = pageSize,
             pageNumber = page,
@@ -75,5 +76,9 @@ class PurchaseRepoImpl @Inject constructor(
 
     override fun getPurchaseOrderItemsSummary(purchaseOrderUUIDs: List<String>): Deferred<Response<List<ItemSummaryItem>>> {
         return apiService.getPurchaseOrderItemsSummary(purchaseOrderUUIDs)
+    }
+
+    override fun getPurchaseRequisitionSummary(requisitionUUIDs: List<String>): Deferred<Response<List<RequisitionSummaryResponse>>> {
+        return apiService.getPurchaseRequisitionSummary(requisitionUUIDs)
     }
 }

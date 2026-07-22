@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Item(
     @SerialName("itemId")
-    val itemId: Int,
+    val itemId: Int = 0,
     @SerialName("itemCode")
     val itemCode: String,
     @SerialName("itemName")
@@ -35,5 +35,5 @@ data class Item(
     @SerialName("majorGroupName")
     val majorGroupName: String?,
     @SerialName("stockOnHand")
-    val stockOnHand: Int
+    val stockOnHand: Double
 )

@@ -6,8 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.deference.inventra.core.utils.network.RequestState
 import com.deference.inventra.domain.model.approvals.ApprovalActionRequest
+import com.deference.inventra.domain.model.approvals.ApprovalRequestType
 import com.deference.inventra.domain.usecase.GetApprovalDetailsUseCase
-import com.deference.inventra.domain.usecase.GetPurchaseOrderItemsSummaryUseCase
+import com.deference.inventra.domain.usecase.GetApprovalItemsUseCase
 import com.deference.inventra.domain.usecase.PerformApprovalActionUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -25,16 +26,17 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = ApproveVM.Factory::class)
 class ApproveVM @AssistedInject constructor(
+    @Assisted val type: ApprovalRequestType,
     @Assisted val approvalId: String,
     @Assisted val transUuId: List<String>,
     private val getApprovalDetailsUseCase: GetApprovalDetailsUseCase,
-    private val getPurchaseOrderItemsSummaryUseCase: GetPurchaseOrderItemsSummaryUseCase,
+    private val getApprovalItemsUseCase: GetApprovalItemsUseCase,
     private val performApprovalActionUseCase: PerformApprovalActionUseCase,
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(approvalId: String, transUuId: List<String>): ApproveVM
+        fun create(type: ApprovalRequestType,approvalId: String, transUuId: List<String>): ApproveVM
     }
 
     private val _state = MutableStateFlow(ApproveState())
@@ -44,7 +46,8 @@ class ApproveVM @AssistedInject constructor(
     val eventFlow = _eventFlow.receiveAsFlow()
 
     init {
-        fetchApprovalDetails(approvalId)
+        fetchApprovalDetails()
+        fetchItems()
     }
 
     fun onAction(action: ApproveAction) {
@@ -77,7 +80,7 @@ class ApproveVM @AssistedInject constructor(
             }
 
             ApproveAction.Refresh -> {
-                fetchApprovalDetails(approvalId)
+                fetchApprovalDetails()
             }
 
             is ApproveAction.OnSearchQueryChanged -> {
@@ -88,7 +91,7 @@ class ApproveVM @AssistedInject constructor(
         }
     }
 
-    private fun fetchApprovalDetails(approvalId: String) {
+    private fun fetchApprovalDetails() {
         viewModelScope.launch {
             getApprovalDetailsUseCase(approvalId).collectLatest { result ->
                 when (result) {
@@ -103,7 +106,6 @@ class ApproveVM @AssistedInject constructor(
                                 selectedApprovalDetails = result.data
                             )
                         }
-                        fetchItems(transUuId)
                     }
 
                     is RequestState.Error -> {
@@ -115,9 +117,9 @@ class ApproveVM @AssistedInject constructor(
         }
     }
 
-    private fun fetchItems(transUuid: List<String>) {
+    private fun fetchItems() {
         viewModelScope.launch {
-            getPurchaseOrderItemsSummaryUseCase(transUuid).collectLatest { result ->
+            getApprovalItemsUseCase(type,transUuId).collectLatest { result ->
                 when (result) {
                     is RequestState.Loading -> {
                         _state.update { it.copy(isLoadingItems = true) }

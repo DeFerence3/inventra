@@ -15,7 +15,7 @@ data class ApprovalItem(
     @SerialName("transDate")
     val transDate: String,
     @SerialName("transType")
-    val transType: String,
+    val transType: ApprovalRequestType,
     @SerialName("itemName")
     val itemName: String,
     @SerialName("amount")

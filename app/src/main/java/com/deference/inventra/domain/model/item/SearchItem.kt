@@ -1,6 +1,5 @@
 package com.deference.inventra.domain.model.item
 
-import com.deference.inventra.domain.model.purchase.Item
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.io.Serializable as JavaSerializable
@@ -33,23 +32,4 @@ data class SearchItem(
     val majorGroup: String,
     @SerialName("itemCode")
     val itemCode: String?
-) : JavaSerializable {
-
-    fun toItem(): Item = Item(
-        itemId = itemId,
-        itemCode = itemCode ?: "",
-        itemName = itemName,
-        unitName = baseUnit,
-        baseUnitName = baseUnit,
-        requiredQty = 0.0,
-        pricePerUnit = 0.0,
-        pricePerBaseUnit = 0.0,
-        grossAmount = 0.0,
-        vendorName = "",
-        locationName = "",
-        stockOnHand = 0,
-        itemGroupName = itemGroup,
-        overGroupName = overGroup,
-        majorGroupName = majorGroup,
-    )
-}
+) : JavaSerializable

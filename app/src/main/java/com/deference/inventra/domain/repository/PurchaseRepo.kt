@@ -10,6 +10,7 @@ import com.deference.inventra.domain.model.pr.PrRequestBody
 import com.deference.inventra.domain.model.purchase.ItemSummaryItem
 import com.deference.inventra.domain.model.purchase.OrderItem
 import com.deference.inventra.domain.model.purchase.PurchaseOrder
+import com.deference.inventra.domain.model.purchase.requisition.RequisitionSummaryResponse
 import kotlinx.coroutines.Deferred
 import retrofit2.Response
 
@@ -54,4 +55,9 @@ interface PurchaseRepo {
     fun getPurchaseOrderItemsSummary(
         purchaseOrderUUIDs: List<String>
     ): Deferred<Response<List<ItemSummaryItem>>>
+
+    fun getPurchaseRequisitionSummary(
+        requisitionUUIDs: List<String>
+    ): Deferred<Response<List<RequisitionSummaryResponse>>>
+
 }
