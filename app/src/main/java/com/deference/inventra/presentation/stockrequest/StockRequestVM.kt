@@ -55,10 +55,26 @@ class StockRequestVM @Inject constructor(
     fun onAction(action: StockRequestActions) {
         when (action) {
             is StockRequestActions.SelectReceiptLocation -> {
-                _state.update { it.copy(receiptLocation = action.location, receiptLocationError = null) }
+                _state.update { state ->
+                    val transferLoc = state.transferLocation
+                    val same = transferLoc != null && transferLoc.id == action.location.id
+                    state.copy(
+                        receiptLocation = action.location,
+                        receiptLocationError = if (same) "Locations cannot be same" else null,
+                        transferLocationError = if (same) "Locations cannot be same" else if (state.transferLocationError == "Locations cannot be same") null else state.transferLocationError
+                    )
+                }
             }
             is StockRequestActions.SelectTransferLocation -> {
-                _state.update { it.copy(transferLocation = action.location, transferLocationError = null) }
+                _state.update { state ->
+                    val receiptLoc = state.receiptLocation
+                    val same = receiptLoc != null && receiptLoc.id == action.location.id
+                    state.copy(
+                        transferLocation = action.location,
+                        transferLocationError = if (same) "Locations cannot be same" else null,
+                        receiptLocationError = if (same) "Locations cannot be same" else if (state.receiptLocationError == "Locations cannot be same") null else state.receiptLocationError
+                    )
+                }
             }
             is StockRequestActions.OnRemarksChanged -> {
                 _state.update { it.copy(remarks = action.remarks) }
@@ -131,8 +147,20 @@ class StockRequestVM @Inject constructor(
             )
         }
 
-        val receiptLocationError = if (currentState.receiptLocation == null) "Receipt location required" else null
-        val transferLocationError = if (currentState.transferLocation == null) "Transfer location required" else null
+        val isSameLocation = currentState.receiptLocation != null &&
+                currentState.transferLocation != null &&
+                currentState.receiptLocation.id == currentState.transferLocation.id
+
+        val receiptLocationError = when {
+            currentState.receiptLocation == null -> "Receipt location required"
+            isSameLocation -> "Locations cannot be same"
+            else -> null
+        }
+        val transferLocationError = when {
+            currentState.transferLocation == null -> "Transfer location required"
+            isSameLocation -> "Locations cannot be same"
+            else -> null
+        }
 
         if (receiptLocationError != null || transferLocationError != null || validatedItems.any { it.itemError != null || it.unitError != null || it.requestedQtyError != null }) {
             _state.update {
@@ -181,7 +209,7 @@ class StockRequestVM @Inject constructor(
             requestFromLocationName = receiptLoc.name,
             requestToLocationId = transferLoc.id,
             requestToLocationName = transferLoc.name,
-            status = 0,
+            status = 1,
             totalNetAmount = 0.0,
             totalVatAmount = 0.0,
             totalGrossAmount = 0.0,

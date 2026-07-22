@@ -71,7 +71,7 @@ data class StockRequestItem(
         ) = StockRequestItem(
             itemId = searchItem.itemId,
             itemName = searchItem.itemName,
-            itemCode = searchItem.itemCode,
+            itemCode = searchItem.itemCode ?: "N/A",
             unitId = unit.id,
             unitName = unit.name,
             itemGroupId = searchItem.itemGroupId,
