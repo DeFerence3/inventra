@@ -52,6 +52,7 @@ fun Home(
     val menuItems = listOf(
         MenuItem("GRN", painterResource(R.drawable.ic_grn), InventraRoutes.SupplierList),
         MenuItem("Purchase Request", painterResource(R.drawable.ic_cart), InventraRoutes.PurchaseRequest),
+        MenuItem("Stock Request", painterResource(R.drawable.ic_request), InventraRoutes.StockRequest),
         MenuItem("Approvals", painterResource(R.drawable.ic_approval), InventraRoutes.ApprovalList),
         MenuItem("Spot Check", painterResource(R.drawable.ic_stock), InventraRoutes.SpotCheck),
         MenuItem("Scan", rememberVectorPainter(image = Icons.Default.DocumentScanner), InventraRoutes.Scan),

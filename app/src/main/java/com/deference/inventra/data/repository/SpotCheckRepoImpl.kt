@@ -2,6 +2,7 @@ package com.deference.inventra.data.repository
 
 import com.deference.inventra.data.remote.StockApiService
 import com.deference.inventra.domain.model.spotcheck.SpotCheckRequestBody
+import com.deference.inventra.domain.model.stock.StockRequestRequestBody
 import com.deference.inventra.domain.repository.SpotCheckRepo
 import kotlinx.coroutines.Deferred
 import retrofit2.Response
@@ -15,5 +16,9 @@ class SpotCheckRepoImpl @Inject constructor(
 
     override fun getNextSerialNo(body: Map<String, String>): Deferred<Response<com.deference.inventra.domain.model.serialno.SerialNo>> {
         return configApiService.getNextSerialNo(body)
+    }
+
+    override fun saveStockRequest(body: StockRequestRequestBody): Deferred<Response<Unit>> {
+        return apiService.saveStockRequest(body)
     }
 }

@@ -15,7 +15,7 @@ data class Location(
     @SerialName("number")
     val number: String,
     @SerialName("code")
-    val code: String,
+    val code: String = "",
     @SerialName("entityId")
     val entityId: Int
 ) : JavaSerializable

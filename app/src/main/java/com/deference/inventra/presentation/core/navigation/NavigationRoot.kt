@@ -31,6 +31,8 @@ import com.deference.inventra.presentation.spotcheck.SpotCheckScreen
 import com.deference.inventra.presentation.spotcheck.SpotCheckVM
 import com.deference.inventra.presentation.supplier.SupplierListScreen
 import com.deference.inventra.presentation.supplier.SupplierVM
+import com.deference.inventra.presentation.stockrequest.StockRequestScreen
+import com.deference.inventra.presentation.stockrequest.StockRequestVM
 import kotlinx.serialization.json.Json
 
 @Composable
@@ -205,7 +207,18 @@ fun NavigationRoot(
                                 }
                             )
                         }
+                        InventraRoutes.StockRequest -> NavEntry(key){
+                            val vm = hiltViewModel<StockRequestVM>()
+                            val state by vm.state.collectAsState()
+                            StockRequestScreen(
+                                onBack = { backStack.removeLastOrNull() },
+                                state = state,
+                                eventFlow = vm.eventFlow,
+                                onAction = vm::onAction
+                            )
+                        }
                     }
+
                 }
                 else -> error("No route for $key")
             }
