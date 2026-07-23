@@ -24,14 +24,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.deference.inventra.core.utils.asAmount
 import com.deference.inventra.core.utils.formatToString
+import com.deference.inventra.domain.model.purchase.Item
 import com.deference.inventra.presentation.approvals.approve.components.DetailRow
 import com.deference.inventra.presentation.approvals.approve.components.ItemCard
+import com.deference.inventra.presentation.approvals.approve.components.ItemDetailsBottomSheet
 import com.deference.inventra.presentation.approvals.approve.components.StepFlowView
 import com.deference.inventra.presentation.core.components.AppButton
 import com.deference.inventra.presentation.core.components.AppButtonType
@@ -50,7 +57,7 @@ fun ApproveScreen(
     onAction: (ApproveAction) -> Unit,
 ) {
     val context = LocalContext.current
-
+    var clickedItem by remember { mutableStateOf<Item?>(null) }
     eventFlow.ObserveEvent { event ->
         when (event) {
             is ApproveEvent.Error -> {
@@ -109,6 +116,14 @@ fun ApproveScreen(
                 }
             } ?: {}
     ) { paddingValues ->
+
+        clickedItem?.let { item ->
+            ItemDetailsBottomSheet(
+                item = item,
+                onDismiss = { clickedItem = null }
+            )
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -135,11 +150,13 @@ fun ApproveScreen(
                         Text(
                             "Items",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                            fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         state.items.forEach { item ->
-                            ItemCard(item = item)
+                            ItemCard(item = item){
+                                clickedItem = item
+                            }
                             Spacer(modifier = Modifier.height(8.dp))
                         }
                     } else if (state.isLoadingItems) {
@@ -156,7 +173,7 @@ fun ApproveScreen(
                     Text(
                         "Status: ${details.status}",
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     if (details.status == "Pending") {

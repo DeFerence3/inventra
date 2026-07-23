@@ -17,11 +17,15 @@ import com.deference.inventra.core.utils.asAmount
 import com.deference.inventra.domain.model.purchase.Item
 
 @Composable
-fun ItemCard(item: Item) {
+fun ItemCard(
+    item: Item,
+    onClick: () -> Unit
+) {
     androidx.compose.material3.Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = androidx.compose.ui.graphics.RectangleShape
+        shape = androidx.compose.ui.graphics.RectangleShape,
+        onClick = onClick
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -33,36 +37,38 @@ fun ItemCard(item: Item) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
-                    Text(text = "Qty", style = MaterialTheme.typography.labelSmall)
-                    Text(
-                        text = "${item.requiredQty} ${item.unitName}",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
+                ItemDetail(
+                    title = "Qty",
+                    value = "${item.requiredQty} ${item.unitName}"
+                )
                 VerticalDivider()
-                Column {
-                    Text(text = "Price", style = MaterialTheme.typography.labelSmall)
-                    Text(
-                        text = item.pricePerUnit.asAmount(),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
+                ItemDetail(
+                    title = "Price",
+                    value = item.pricePerUnit.asAmount()
+                )
                 VerticalDivider()
-                Column {
-                    Text(
-                        text = "Gross",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = item.grossAmount.asAmount(),
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+                ItemDetail(
+                    title = "Gross",
+                    value = item.grossAmount.asAmount()
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun ItemDetail(
+    title: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+    ) {
+        Text(text = title, style = MaterialTheme.typography.labelSmall)
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 }

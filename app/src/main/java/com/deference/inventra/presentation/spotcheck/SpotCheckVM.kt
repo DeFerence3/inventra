@@ -160,6 +160,7 @@ class SpotCheckVM @Inject constructor(
                 itemGroupName = input.item.itemGroup,
                 overGroupName = input.item.overGroup,
                 majorGroupName = input.item.majorGroup,
+                lastPurchasePrice = 0.0
             )
         }
 

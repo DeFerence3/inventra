@@ -35,5 +35,7 @@ data class Item(
     @SerialName("majorGroupName")
     val majorGroupName: String?,
     @SerialName("stockOnHand")
-    val stockOnHand: Double
+    val stockOnHand: Double,
+    @SerialName("lastPurchasePrice")
+    val lastPurchasePrice: Double
 )

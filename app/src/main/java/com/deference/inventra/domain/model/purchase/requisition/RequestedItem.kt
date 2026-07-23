@@ -40,6 +40,7 @@ data class RequestedItem(
         itemGroupName = "",
         overGroupName = "",
         majorGroupName = "",
-        stockOnHand = stockOnHand
+        stockOnHand = stockOnHand,
+        lastPurchasePrice = lastPurchasePrice
     )
 }
