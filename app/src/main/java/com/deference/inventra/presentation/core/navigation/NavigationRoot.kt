@@ -29,10 +29,14 @@ import com.deference.inventra.presentation.purchaserequest.PurchaseRequestScreen
 import com.deference.inventra.presentation.purchaserequest.PurchaseRequestVM
 import com.deference.inventra.presentation.spotcheck.SpotCheckScreen
 import com.deference.inventra.presentation.spotcheck.SpotCheckVM
-import com.deference.inventra.presentation.supplier.SupplierListScreen
-import com.deference.inventra.presentation.supplier.SupplierVM
+import com.deference.inventra.presentation.stockreceipt.StockReceiptDetailScreen
+import com.deference.inventra.presentation.stockreceipt.StockReceiptDetailVM
+import com.deference.inventra.presentation.stockreceipt.StockReceiptListScreen
+import com.deference.inventra.presentation.stockreceipt.StockReceiptListVM
 import com.deference.inventra.presentation.stockrequest.StockRequestScreen
 import com.deference.inventra.presentation.stockrequest.StockRequestVM
+import com.deference.inventra.presentation.supplier.SupplierListScreen
+import com.deference.inventra.presentation.supplier.SupplierVM
 import kotlinx.serialization.json.Json
 
 @Composable
@@ -217,7 +221,36 @@ fun NavigationRoot(
                                 onAction = vm::onAction
                             )
                         }
+                        InventraRoutes.StockReceiptList -> NavEntry(key){
+                            val vm = hiltViewModel<StockReceiptListVM>()
+                            val state by vm.state.collectAsState()
+                            StockReceiptListScreen(
+                                onBack = { backStack.removeLastOrNull() },
+                                onReceiptClick = { receipt ->
+                                    backStack.add(InventraRoutes.StockReceiptDetails(receipt.uuid))
+                                },
+                                state = state,
+                                eventFlow = vm.eventFlow,
+                                onAction = vm::onAction
+                            )
+                        }
+                        is InventraRoutes.StockReceiptDetails -> NavEntry(key){
+                            val vm = hiltViewModel<StockReceiptDetailVM,StockReceiptDetailVM.Factory>(
+                                creationCallback = { factory ->
+                                    factory.create(key.transNo)
+                                }
+                            )
+                            val state by vm.state.collectAsState()
+                            StockReceiptDetailScreen(
+                                onBack = { backStack.removeLastOrNull() },
+                                state = state,
+                                eventFlow = vm.eventFlow,
+                                onAccept = { vm.acceptReceipt() },
+                                onDecline = { vm.declineReceipt() }
+                            )
+                        }
                     }
+
 
                 }
                 else -> error("No route for $key")

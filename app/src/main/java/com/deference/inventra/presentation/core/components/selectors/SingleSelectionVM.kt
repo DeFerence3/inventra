@@ -85,13 +85,6 @@ class SingleSelectionVM @Inject constructor(
             e.printStackTrace()
             updateState { it.copy(error = "Invalid response from server") }
             emptyList()
-        }catch (e: Exception) {
-            e.printStackTrace()
-            updateState { it.copy(error = "Unhandled Exception: ${e.message}") }
-            emptyList()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emptyList()
         }
     }
 

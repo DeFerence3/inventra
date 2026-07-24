@@ -27,4 +27,8 @@ sealed interface InventraRoutes: NavKey {
     data object Scan : InventraRoutes
     @Serializable
     data object StockRequest : InventraRoutes
+    @Serializable
+    data object StockReceiptList : InventraRoutes
+    @Serializable
+    data class StockReceiptDetails(val transNo: String) : InventraRoutes
 }
