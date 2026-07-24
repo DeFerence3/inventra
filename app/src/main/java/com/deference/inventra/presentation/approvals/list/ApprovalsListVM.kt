@@ -5,10 +5,7 @@ package com.deference.inventra.presentation.approvals.list
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.deference.inventra.core.utils.network.RequestState
-import com.deference.inventra.domain.model.approvals.ApprovalActionRequest
-import com.deference.inventra.domain.usecase.GetApprovalDetailsUseCase
 import com.deference.inventra.domain.usecase.GetApprovalsUseCase
-import com.deference.inventra.domain.usecase.PerformApprovalActionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
@@ -27,19 +24,16 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class ApprovalsListVM @Inject constructor(
-    private val getApprovalsUseCase: GetApprovalsUseCase,
-    private val getApprovalDetailsUseCase: GetApprovalDetailsUseCase,
-    private val performApprovalActionUseCase: PerformApprovalActionUseCase
+    private val getApprovalsUseCase: GetApprovalsUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(ApprovalsListState())
+    private val _state = MutableStateFlow(ApprovalsListState(isLoading = true))
     val state: StateFlow<ApprovalsListState> = _state.asStateFlow()
 
     private val _eventFlow = Channel<ApprovalsListEvent>()
     val eventFlow = _eventFlow.receiveAsFlow()
 
     init {
-        fetchApprovals()
         viewModelScope.launch {
             _state.map { it.searchQuery }
                 .debounce(500.milliseconds)
@@ -60,16 +54,12 @@ class ApprovalsListVM @Inject constructor(
                 _state.update { it.copy(searchQuery = "",selectedTransType = action.transType) }
                 fetchApprovals()
             }
-            is ApprovalsListActions.OnApprovalClick -> {
-                // This is now handled by navigation
-            }
             ApprovalsListActions.OnDismissDetails -> {
                 _state.update { it.copy(isDetailsModalVisible = false, selectedApprovalDetails = null, comment = "", actionError = null) }
             }
             ApprovalsListActions.Refresh -> {
                 fetchApprovals(isRefreshing = true)
             }
-
             is ApprovalsListActions.OnSearchQueryChanged -> {
                 _state.update { it.copy(searchQuery = action.query) }
             }
