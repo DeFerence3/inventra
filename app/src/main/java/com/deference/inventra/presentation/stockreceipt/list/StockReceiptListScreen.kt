@@ -1,4 +1,4 @@
-package com.deference.inventra.presentation.stockreceipt
+package com.deference.inventra.presentation.stockreceipt.list
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +17,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -35,12 +37,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.deference.inventra.core.utils.formatToString
 import com.deference.inventra.domain.model.stock.StockReceiptResponseBody
 import com.deference.inventra.domain.model.stock.StockReceiptStatus
-import com.deference.inventra.presentation.core.components.ErrorDialog
 import com.deference.inventra.presentation.core.components.InputTextField
 import com.deference.inventra.presentation.core.components.InputTextFieldType
 import com.deference.inventra.presentation.core.utils.ObserveEvent
@@ -161,12 +164,12 @@ fun ReceiptCard(
     item: StockReceiptResponseBody,
     onClick: () -> Unit
 ) {
-    androidx.compose.material3.Card(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
-        elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = androidx.compose.ui.graphics.RectangleShape,
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RectangleShape,
         onClick = onClick
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -177,7 +180,7 @@ fun ReceiptCard(
                 Text(
                     text = item.transNo,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = item.transDate.formatToString(),

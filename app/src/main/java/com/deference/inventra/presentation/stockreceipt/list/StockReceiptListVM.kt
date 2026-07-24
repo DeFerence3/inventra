@@ -1,4 +1,4 @@
-package com.deference.inventra.presentation.stockreceipt
+package com.deference.inventra.presentation.stockreceipt.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -1,4 +1,4 @@
-package com.deference.inventra.presentation.stockreceipt
+package com.deference.inventra.presentation.stockreceipt.list
 
 import com.deference.inventra.domain.model.stock.StockReceiptStatus
 
