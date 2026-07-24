@@ -1,4 +1,4 @@
-package com.deference.inventra.presentation.stockreceipt
+package com.deference.inventra.presentation.stockreceipt.details
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.deference.inventra.core.utils.formatToString
+import com.deference.inventra.domain.model.stock.receipt.Item
 import com.deference.inventra.presentation.approvals.approve.components.DetailRow
 import com.deference.inventra.presentation.core.components.AppButton
 import com.deference.inventra.presentation.core.components.AppButtonType
@@ -163,10 +166,10 @@ fun StockReceiptDetailScreen(
 }
 
 @Composable
-fun ReceiptItemCard(item: com.deference.inventra.domain.model.stock.receipt.Item) {
-    androidx.compose.material3.Card(
+fun ReceiptItemCard(item: Item) {
+    Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = RoundedCornerShape(8.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {

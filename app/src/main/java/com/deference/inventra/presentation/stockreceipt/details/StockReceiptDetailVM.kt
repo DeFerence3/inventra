@@ -1,4 +1,4 @@
-package com.deference.inventra.presentation.stockreceipt
+package com.deference.inventra.presentation.stockreceipt.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,17 +13,13 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-sealed interface StockReceiptDetailEvent {
-    data class Error(val message: String) : StockReceiptDetailEvent
-    data object Success : StockReceiptDetailEvent
-}
 
 @HiltViewModel(assistedFactory = StockReceiptDetailVM.Factory::class)
 class StockReceiptDetailVM @AssistedInject constructor(
@@ -44,7 +40,7 @@ class StockReceiptDetailVM @AssistedInject constructor(
         }
         .stateIn(
             viewModelScope,
-            kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+            SharingStarted.WhileSubscribed(3000),
             _state.value
         )
 

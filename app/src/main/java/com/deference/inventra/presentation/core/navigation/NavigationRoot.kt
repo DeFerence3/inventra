@@ -29,8 +29,8 @@ import com.deference.inventra.presentation.purchaserequest.PurchaseRequestScreen
 import com.deference.inventra.presentation.purchaserequest.PurchaseRequestVM
 import com.deference.inventra.presentation.spotcheck.SpotCheckScreen
 import com.deference.inventra.presentation.spotcheck.SpotCheckVM
-import com.deference.inventra.presentation.stockreceipt.StockReceiptDetailScreen
-import com.deference.inventra.presentation.stockreceipt.StockReceiptDetailVM
+import com.deference.inventra.presentation.stockreceipt.details.StockReceiptDetailScreen
+import com.deference.inventra.presentation.stockreceipt.details.StockReceiptDetailVM
 import com.deference.inventra.presentation.stockreceipt.StockReceiptListScreen
 import com.deference.inventra.presentation.stockreceipt.StockReceiptListVM
 import com.deference.inventra.presentation.stockrequest.StockRequestScreen
